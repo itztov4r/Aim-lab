@@ -87,8 +87,8 @@ const R=[["Iron",0],["Bronze",1000],["Silver",1800],["Gold",2500],["Platinum",31
 const RC=["#8b93a1","#cd7f32","#c0c7d1","#ffc107","#3ddbd9","#5aa9ff","#ff3d71"];const rank=b=>{let i=0;R.forEach((r,j)=>{if(b>=r[1])i=j});return i};
 const $=id=>document.getElementById(id),cv=$("cv"),x=cv.getContext("2d");
 // Configure these two values from your Supabase project (Project Settings > API)
-const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://tgrvkfljqwaapbnqfifp.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_GO6cRImSnd3MaW3aN23ynA_FGLFd-Qo";
 let db=null,an="",uid=null,me={games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0},g=null,mouse={x:400,y:250};
 const configured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
 function localNick(){try{return localStorage.getItem("aimlab_nick")||""}catch(e){return ""}}
