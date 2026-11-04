@@ -1,6 +1,6 @@
 # AIMLAB — projet GitHub Pages + Supabase
 
-Projet statique prêt à publier : jeu Aim Trainer, profil joueur, photo, coins, shop, rangs et classement partagé en ligne.
+Projet statique prêt à publier : jeu Aim Trainer, profil joueur, photo, coins, shop, rangs et classement partagé en ligne. **Les scores en ligne nécessitent maintenant un compte Supabase Auth (email + mot de passe).**
 
 ## Contenu du dossier
 
@@ -48,9 +48,11 @@ Remplace les deux valeurs par celles de TON projet Supabase, puis enregistre le 
 
 ## Notes importantes
 
-- Les pseudos sont publics et uniques sans distinction majuscule/minuscule.
-- Cette version ne demande pas de compte : le pseudo sert d'identifiant. Un autre visiteur peut essayer d'utiliser le pseudo de quelqu'un. Pour une vraie identité protégée, il faudra ajouter Supabase Auth.
-- Comme le jeu et le calcul du score tournent dans le navigateur, un classement public sans serveur de validation n'est pas anti-triche. Ne considère pas les scores comme une compétition officielle sécurisée.
+- Les pseudos sont publics et uniques sans distinction majuscule/minuscule. Les anciens profils sans compte restent visibles mais sont verrouillés et ne sont pas attribués automatiquement à un nouvel utilisateur.
+- Pour enregistrer de nouveaux scores en ligne, ouvre le profil puis choisis **Create account** ou **Sign in** (email + mot de passe). Selon la configuration Supabase Auth, il peut être nécessaire de confirmer ton email.
+- Sans connexion, le jeu reste jouable et la progression reste locale à cet appareil.
+- La base `public.players` associe les nouveaux profils à `auth.users.id` par `user_id` et RLS n'autorise que le propriétaire à modifier sa ligne.
+- Les scores sont calculés dans le navigateur : cette version protège la propriété des profils mais **n'empêche pas la triche**. Une compétition sécurisée nécessite une validation côté serveur.
 - Les photos sont redimensionnées dans le navigateur et stockées dans la colonne `pic` de la base. Pour un grand nombre de joueurs, il sera préférable de migrer les images vers Supabase Storage.
 - La clé publique Supabase peut être visible dans le code du site : c'est normal. La sécurité repose sur les règles RLS de la base, jamais sur le fait de cacher cette clé.
 
@@ -61,6 +63,10 @@ Remplace les deux valeurs par celles de TON projet Supabase, puis enregistre le 
 3. Jib Project URL w anon/publishable key, 7ethom f `index.html` f blasst `YOUR_...`.
 4. Uploadi ga3 dossier l GitHub, khlli `index.html` f root.
 5. F GitHub: Settings → Pages → Deploy from a branch → `main` → `/ (root)` → Save.
-6. Jarrab b navigateur akhor: ila kolchi mzyan, ghadi tchouf nafs Leaderboard.
+6. L3ab o l Leaderboard yban l nass kamlin. Bach t7fed score online khass compte w tconfirmi email ila talab Supabase. L profiles l9dam kayb9aw f leaderboard mais m7myin men modification.
 
 **Mat7ettch `service_role` key f HTML.**
+
+## Migration existante (2026-11-04)
+
+La migration de sécurité a été appliquée au projet AIMLAB : elle a conservé les cinq anciens profils, placé une sauvegarde dans le schéma privé `aimlab_private_backup` et fermé les policies anonymes INSERT/UPDATE. Ne pas retirer `user_id` ou réouvrir ces anciennes policies. La clé publique dans `index.html` n'est pas une clé secrète.
