@@ -201,7 +201,216 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   100%{opacity:0;visibility:hidden;pointer-events:none}
 }
 @media(prefers-reduced-motion:reduce){#intro:not(.out){animation-duration:.15s}}
+
+/* AIMLAB Comfort Edition: legible surfaces, restrained accent, calmer motion */
+:root{
+  --bg:#101720;
+  --card:#1a232e;
+  --tx:#edf0f4;
+  --mu:#aeb9c7;
+  --ac:#e9a079;
+  --bd:#33404f;
+  --cv:#151d27;
+  --soft:#242e3b;
+  --button:#a84e32;
+  color-scheme:dark;
+}
+:root[data-theme="light"]{
+  --bg:#f4f5f2;
+  --card:#ffffff;
+  --tx:#24313d;
+  --mu:#586877;
+  --ac:#9b482e;
+  --bd:#d6dfe5;
+  --cv:#17222e;
+  --soft:#edf1f3;
+  --button:#a54b31;
+  color-scheme:light;
+}
+html{scroll-behavior:smooth}
+body{
+  background:radial-gradient(ellipse 700px 380px at 4% 0%,rgba(195,125,96,.055),transparent 80%),
+             radial-gradient(ellipse 600px 360px at 100% 5%,rgba(104,125,157,.045),transparent 80%),var(--bg);
+  color:var(--tx);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  transition:background-color .25s ease,color .25s ease;
+}
+body::before{opacity:.15;pointer-events:none}
+.w{max-width:1090px;gap:22px;padding:25px 20px 48px}
+.c{
+  padding:22px 24px;
+  border:1px solid var(--bd);
+  background:var(--card);
+  box-shadow:0 8px 26px rgba(0,0,0,.085);
+  border-radius:18px;
+}
+.c::before{height:1px;opacity:.38}
+#hd{
+  padding:12px 17px;
+  border:1px solid var(--bd);
+  background:var(--card);
+  box-shadow:0 3px 17px rgba(0,0,0,.07);
+  gap:12px;
+}
+#hd .br{filter:none}
+#hd h1{font-size:23px;letter-spacing:.045em}
+h1 em{color:var(--ac);text-shadow:none}
+h2{color:var(--ac);letter-spacing:.09em}
+#nv{gap:5px;flex-wrap:wrap}
+#nv button{
+  padding:10px 15px;
+  border-radius:11px;
+  color:var(--mu);
+  font-size:13px;
+  transition:background .18s,color .18s;
+}
+#nv button:hover{background:var(--soft);color:var(--tx)}
+#nv button.on{background:var(--soft);box-shadow:inset 0 0 0 1px var(--bd);color:var(--tx);font-weight:700}
+.rt{gap:8px}
+#cn,#hu,#themeMode{
+  background:var(--soft);
+  border:1px solid var(--bd);
+  box-shadow:none;
+  border-radius:12px;
+}
+#cn{padding:10px 13px}
+#hu{transition:background .2s,border-color .2s}
+#hu:hover{background:var(--card)}
+#themeMode{
+  height:42px;
+  min-width:42px;
+  padding:0 10px;
+  color:var(--tx);
+  font-size:19px;
+  line-height:1;
+  letter-spacing:0;
+  text-transform:none;
+  display:grid;
+  place-items:center;
+}
+#themeMode:hover{background:var(--card);box-shadow:none;transform:none;border-color:var(--ac)}
+.hero{
+  min-height:153px;
+  padding:25px 29px;
+  border-color:var(--bd);
+  background:linear-gradient(110deg,rgba(198,133,102,.09),transparent 65%),var(--card);
+  box-shadow:none;
+}
+.hero h2{font-size:clamp(26px,4.3vw,38px);line-height:1.18;letter-spacing:.01em}
+.hero .kicker{color:var(--ac);letter-spacing:.16em}
+.hero p{font-size:13px;max-width:520px;line-height:1.7}
+.hero .reticle{
+  opacity:.7;animation:aimBreath 6s ease-in-out infinite;
+  border-color:var(--ac);box-shadow:none;color:var(--ac);
+}
+.hero::after{opacity:.3}
+.hud{gap:10px}
+.hud>div{
+  border-color:var(--bd);
+  background:var(--soft);
+  border-radius:12px;
+  padding:12px 14px;
+  color:var(--mu);
+  font-size:11px;
+  letter-spacing:.07em;
+}
+.hud b{font-size:clamp(21px,2.5vw,26px);color:var(--tx)}
+#sc{color:var(--ac)!important}
+#comboHud b{color:var(--ac)!important}
+canvas{
+  background-color:var(--cv);
+  border:1px solid var(--bd);
+  border-radius:13px;
+  box-shadow:none;
+}
+#ov{
+  background:rgba(12,18,25,.75);
+  backdrop-filter:blur(2px);
+  border-radius:13px;
+}
+#ovt{color:#f0b08b;text-shadow:none}
+#ovs{color:#d2dce6}
+#gc>p{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#df{margin-right:0;background:var(--soft);border:1px solid var(--bd);border-radius:11px;padding:11px 13px}
+button{
+  background:var(--button);
+  color:#fff;
+  text-shadow:none;
+  box-shadow:none;
+  border-radius:11px;
+  letter-spacing:.055em;
+  transition:background-color .18s,transform .18s,border-color .18s;
+}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:none;filter:brightness(1.08)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+  outline:2px solid var(--ac);outline-offset:3px;
+}
+.bar{background:var(--bd)}
+.bar i{background:var(--ac)}
+.rk{text-shadow:none}
+#cn{color:var(--tx)}
+#sh .row{background:var(--soft);border-color:var(--bd);padding:14px}
+#sh .row button{border-radius:9px}
+.mission,.player-stat,.entry-preview,.entry-tip,.achievement,.player-rankpanel{
+  background:var(--soft);
+  border-color:var(--bd);
+}
+.mission{padding:18px}
+.achievement{opacity:.8}
+.achievement.unlocked{opacity:1;border-color:var(--ac)}
+.mission.done{border-color:var(--ac)}
+.lb-player{
+  min-height:73px;
+  margin:4px 0;
+  border:1px solid transparent;
+  border-bottom-color:var(--bd);
+  border-radius:12px;
+}
+.lb-player:hover,.lb-player:focus-visible{
+  background:var(--soft);border-color:var(--bd);box-shadow:none;transform:none;
+}
+.lb-player.mine{background:var(--soft);border-color:var(--bd)}
+.lb-player .player-points strong{color:var(--ac)}
+.lb-player .mini-avatar{box-shadow:none;background:linear-gradient(135deg,#bd7f66,#965741)}
+.lb-search,.entry-form input{background:var(--soft);border-color:var(--bd)}
+#pm,#playerModal{backdrop-filter:blur(6px)}
+#pm .pb,#playerModal .player-detail{background:var(--card);border-color:var(--bd);box-shadow:0 20px 65px rgba(0,0,0,.25)}
+.player-banner{background:linear-gradient(120deg,#374554,#27323f)}
+#tt{background:var(--card);border-color:var(--bd);box-shadow:0 8px 25px rgba(0,0,0,.14)}
+:root[data-theme="light"] .hero{background:linear-gradient(110deg,rgba(168,101,69,.07),transparent 65%),var(--card)}
+:root[data-theme="light"] body::before{opacity:.06}
+:root[data-theme="light"] #ov{background:rgba(18,25,34,.75)}
+:root[data-theme="light"] #gc canvas{background-color:#151d27}
+:root[data-theme="light"] #intro{background:radial-gradient(circle at center,#253141,#101821 75%)}
+@media(max-width:760px){
+  .w{padding:12px 12px 36px;gap:13px}
+  .c{padding:17px 15px}
+  #hd{padding:12px;gap:12px}
+  #nv{width:100%;justify-content:space-between;gap:4px;overflow:visible}
+  #nv button{padding:9px 11px;flex:1;white-space:nowrap;font-size:12px}
+  .rt{margin-left:0;width:100%;justify-content:space-between}
+  .hero{padding:21px 19px;min-height:145px}
+  .hero .reticle{width:54px;height:54px}
+  .hero .reticle::before{font-size:43px}
+}
+@media(max-width:390px){
+  #nv button{font-size:11px;padding:8px 7px}
+  #gc>p #go{flex:1}
+  .hero .reticle{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
+  #intro:not(.out){animation:introFailSafe .15s forwards!important}
+}
 </style></head><body><div id="intro" role="status" aria-label="Loading AIMLAB"><div class="intro-inner"><div class="intro-aim" aria-hidden="true"></div><div class="intro-title">AIM<em>LAB</em></div><div class="intro-sub">PRECISION · SPEED · RANK</div><div class="intro-bar"><i></i></div><button id="intro-skip" type="button">SKIP INTRO →</button></div></div><script>
+/* Remember the user's preferred eye-comfort theme before painting the page. */
+(function(){
+  try{
+    const theme=localStorage.getItem("aimlab_theme");
+    document.documentElement.dataset.theme=theme==="light"?"light":"dark";
+  }catch(e){document.documentElement.dataset.theme="dark"}
+})();
 /* Intro independent from the game/CDN: never block the site on remote loading. */
 (function(){
   const intro=document.getElementById("intro");
@@ -219,7 +428,7 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
   window.setTimeout(dismiss,reduced?100:1800);
 })();
 </script><div class="w" id="w" data-v="play">
-<header id="hd"><div class="br"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="16" cy="16" r="9"/><path d="M16 2v7M16 23v7M2 16h7M23 16h7"/></svg><h1>AIM<em>LAB</em></h1></div><i class="vd"></i><nav id="nv"><button data-v="play" class="on">Play</button><button data-v="shop">Shop</button><button data-v="lb">Leaderboard</button><button data-v="challenge">Challenges</button></nav><div class="rt"><i class="vd"></i><div id="cn">🪙 0</div><div id="hu"><div class="av" id="hav">?</div><div id="who">Guest</div><span class="ch">▾</span></div></div></header>
+<header id="hd"><div class="br"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="16" cy="16" r="9"/><path d="M16 2v7M16 23v7M2 16h7M23 16h7"/></svg><h1>AIM<em>LAB</em></h1></div><i class="vd"></i><nav id="nv"><button data-v="play" class="on">Play</button><button data-v="shop">Shop</button><button data-v="lb">Leaderboard</button><button data-v="challenge">Challenges</button></nav><div class="rt"><i class="vd"></i><button id="themeMode" type="button" aria-label="Switch to light mode" title="Switch theme">☀</button><div id="cn">🪙 0</div><div id="hu"><div class="av" id="hav">?</div><div id="who">Guest</div><span class="ch">▾</span></div></div></header>
 <section class="hero" aria-label="Game introduction"><div><span class="kicker">TOV4R · AIM TRAINER</span><h2>TRAIN YOUR <strong>AIM.</strong><br>CLIMB THE RANKS.</h2><p>30-second precision challenges. Track your best score and compete on the community leaderboard.</p></div><div class="reticle" aria-hidden="true"></div></section><div class="c" id="gc"><div class="hud"><div>Score <b id="sc">0</b></div><div>Time <b id="tm">30</b></div><div>Acc <b id="ac">–</b></div><div>Reaction <b id="rt">–</b></div><div id="comboHud">Combo <b id="comboValue">0×</b></div></div>
 <div class="cw"><div id="comboFlash" aria-live="off"></div><canvas id="cv" width="800" height="500"></canvas><div id="ov"><div id="ovt">READY?</div><div id="ovs">Enter your name, then press Start</div></div></div>
 <p style="margin:10px 0 0"><select id="df"><option value="1">Easy ×0.8</option><option value="2" selected>Normal ×1</option><option value="3">Hard ×1.5</option></select><button id="go">Start (30s)</button> <span id="msg" class="mu"></span></p></div>
@@ -426,5 +635,22 @@ cv.addEventListener("pointermove",e=>{const b=cv.getBoundingClientRect();mouse={
 cv.addEventListener("pointerdown",e=>{if(!g)return;const b=cv.getBoundingClientRect(),px=(e.clientX-b.left)*800/b.width,py=(e.clientY-b.top)*500/b.height;mouse={x:px,y:py};
 g.clicks++;const t=g.t;if(t&&Math.hypot(px-t.x,py-t.y)<=t.r){const rt=performance.now()-t.t0,pts=Math.round((50+100*Math.max(0,1-rt/t.life))*g.m);g.hits++;g.rt+=rt;g.sc+=pts;updateCombo(true);snd(700+Math.min(pts,200)*2,.07,"triangle");for(let i=0;i<12;i++){const a=Math.random()*6.28,s=1+Math.random()*4;P.push({x:t.x,y:t.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1})}P.push({x:t.x,y:t.y-t.r,vx:0,vy:-1,l:1.4,tx:"+"+pts});spawn()}else{updateCombo(false);snd(150,.12,"sawtooth",.05);cv.classList.remove("ms");void cv.offsetWidth;cv.classList.add("ms")}
 $("sc").textContent=g.sc;$("ac").textContent=Math.round(g.hits/g.clicks*100)+"%";$("rt").textContent=g.hits?Math.round(g.rt/g.hits)+"ms":"–"});
+(function(){
+ const b=document.getElementById("themeMode");
+ if(!b)return;
+ function showTheme(){
+  const light=document.documentElement.dataset.theme==="light";
+  b.textContent=light?"☾":"☀";
+  b.title=light?"Switch to dark mode":"Switch to light mode";
+  b.setAttribute("aria-label",b.title);
+ }
+ b.addEventListener("click",()=>{
+  const next=document.documentElement.dataset.theme==="light"?"dark":"light";
+  document.documentElement.dataset.theme=next;
+  try{localStorage.setItem("aimlab_theme",next)}catch(e){}
+  showTheme();
+ });
+ showTheme();
+})();
 $("go").onclick=start;profile();renderChallenges();login();init();
 </script></body></html>
