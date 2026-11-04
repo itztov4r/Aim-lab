@@ -440,7 +440,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
 <div class="cw"><div id="comboFlash" aria-live="off"></div><canvas id="cv" width="800" height="500"></canvas><div id="ov"><div id="ovt">READY?</div><div id="ovs">Enter your name, then press Start</div></div></div>
 <p style="margin:10px 0 0"><select id="df"><option value="1">Easy ×0.8</option><option value="2" selected>Normal ×1</option><option value="3">Hard ×1.5</option></select><button id="go">Start (30s)</button> <span id="msg" class="mu"></span></p></div>
 <div class="c" id="challengec"><div class="challenge-head"><div><h2>🎯 Daily Challenges</h2><p>New objectives every day. Complete missions and unlock achievements.</p></div><button id="claimDaily" type="button">🎁 Claim daily +50</button></div><div id="missions" class="mission-grid"></div><div class="section-line"><h2>🏆 Achievements</h2><span class="mu" id="achievementCount">0 / 6 unlocked</span></div><div id="achievements" class="achievement-grid"></div><p class="mu" style="font-size:12px;margin-top:18px">Daily missions and badges are stored on this device. Your official leaderboard still uses the classic 30-second game.</p></div><div id="pf" hidden></div><div class="c" id="shc"><h2>Shop &amp; Bonuses</h2><div id="sh"></div><p class="mu" style="font-size:12px;margin:8px 0 0">Earn 🪙: daily login (streak up to 7 days), rank-up, 90%+ accuracy, new best score.</p></div><div class="c" id="lbc"><div id="res"></div><h2>Leaderboard</h2><div class="lb-top"><input id="lbSearch" class="lb-search" type="search" placeholder="🔎 Search players..." aria-label="Search players" maxlength="32"><span id="lbCount" class="lb-hint">Tap a player to view profile</span></div><div id="lb" class="lb mu">Connect the online leaderboard to see all players.</div><p id="pap" style="margin:14px 0 0;display:none"><button id="pa">▶ Play again</button></p></div>
-</div><div id="pm" role="dialog" aria-modal="true" aria-label="Player access"><div class="pb"><button id="px" aria-label="Close player access">✕</button><span class="entry-heading">TOV4R • PLAYER ACCESS</span><h2>Enter the arena.</h2><p class="entry-desc">Choose your player nickname, personalize your avatar and start climbing the leaderboard.</p><div id="pmc"></div></div></div><div id="playerModal" role="dialog" aria-modal="true" aria-label="Public player profile"><div class="player-detail"><button id="closePlayer" aria-label="Close player profile">✕</button><div id="playerModalContent"></div></div></div><div id="tt"></div><script id="supabaseSdk" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" async></script><script>
+</div><div id="pm" role="dialog" aria-modal="true" aria-label="Player access"><div class="pb"><button id="px" aria-label="Close player access">✕</button><span class="entry-heading">TOV4R • PLAYER ACCESS</span><h2>Enter the arena.</h2><p class="entry-desc">Choose your player nickname, personalize your avatar and start climbing the leaderboard.</p><div id="pmc"></div></div></div><div id="playerModal" role="dialog" aria-modal="true" aria-label="Public player profile"><div class="player-detail"><button id="closePlayer" aria-label="Close player profile">✕</button><div id="playerModalContent"></div></div></div><div id="tt"></div><script id="supabaseSdk" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0" async></script><script>
 
 /* Intro + on-device preservation of shop progress. Online score API stays unchanged. */
 // The intro is initialized by an independent script before the game.
@@ -462,9 +462,11 @@ async function persistPlayer(){
   if(!me.nick){return false}
   saveLocalProgress();
   if(!db||!authUser){return false}
+  const owner=authUser.id;
   const row={nick:me.nick,nick_lc:me.nick.toLowerCase(),user_id:authUser.id,best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:Math.round(me.rtSum||0),updated_at:new Date().toISOString()};
   // First look up the row BY AUTHENTICATED OWNER, never by a nickname.
   const {data:mine,error:lookupError}=await db.from("players").select("nick").eq("user_id",authUser.id).maybeSingle();
+  if(authUser?.id!==owner)return false;
   if(lookupError){console.error("Player ownership lookup:",lookupError);return false}
   let error;
   if(mine){
@@ -478,11 +480,13 @@ async function persistPlayer(){
 
 async function loadOwnedPlayer(){
   if(!db||!authUser)return;
+  const owner=authUser.id;
   const {data,error}=await db.from("players").select("*").eq("user_id",authUser.id).maybeSingle();
+  if(authUser?.id!==owner)return;
   if(error){toast("Could not load your account profile");return}
   if(data){
     const fresh={nick:data.nick,best:data.best||0,pic:data.pic||null,games:data.games||0,hits:data.hits||0,clicks:data.clicks||0,rtSum:Number(data.rt_sum)||0,coins:0};
-    me=fresh;
+    me={...fresh};
     restoreLocalProgress();
     // Database is authoritative for ranked metrics; local browser storage only carries cosmetics/coins.
     me.best=fresh.best;me.games=fresh.games;me.hits=fresh.hits;me.clicks=fresh.clicks;me.rtSum=fresh.rtSum;
@@ -504,7 +508,7 @@ async function signInPlayer(register){
     toast("Check your email for confirmation, then sign in.");
     return;
   }
-  authUser=result.data.user;
+  cancelGame();authUser=result.data.user;
   await loadOwnedPlayer();
   await board();
   openPf();
@@ -513,7 +517,7 @@ async function signInPlayer(register){
 
 async function logoutPlayer(){
   if(db){const {error}=await db.auth.signOut();if(error){toast("Unable to sign out: "+error.message);return}}
-  authUser=null;
+  cancelGame();authUser=null;
   // Signing out must not retain another account's identity or database scores.
   me={nick:"",games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0};
   saveLocalNick("");
@@ -577,7 +581,9 @@ function login(){const si=db,nm=esc(me.nick||an||"Guest"),ok=me.pic&&String(me.p
 $("who").textContent=nm;$("hav").innerHTML=ok?`<img src="${String(me.pic).replace(/["'<>]/g,"")}" alt="">`:(me.nick?nm[0].toUpperCase():"?");
 $("hu").title=authUser?"Secure player account":si?"Sign in or edit your profile":"Choose your player nickname"}
 $("hu").onclick=openPf;
-let AC=null,mute=false,cd=0;const D={1:{r:[22,42],life:2000,m:.8},2:{r:[16,34],life:1500,m:1},3:{r:[10,24],life:1000,m:1.5}};
+let AC=null,mute=false,cd=0,gameEpoch=0;
+function cancelGame(){gameEpoch++;g=null;cd=0;$("go").disabled=false;$("df").disabled=false;$("ov").style.display="flex";$("ovt").textContent="READY?";}
+const D={1:{r:[22,42],life:2000,m:.8},2:{r:[16,34],life:1500,m:1},3:{r:[10,24],life:1000,m:1.5}};
 const snd=(f,d,t="sine",v=.08)=>{if(mute)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),q=AC.createGain();o.type=t;o.frequency.value=f;q.gain.value=v;q.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(q);q.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(er){}};
 
 function openPf(){
@@ -705,7 +711,7 @@ async function init(){
 }
 
 function spawn(){const d=D[$("df").value],r=d.r[0]+Math.random()*(d.r[1]-d.r[0]);g.t={life:d.life,x:r+Math.random()*(800-2*r),y:r+Math.random()*(500-2*r),r,t0:performance.now()}}
-async function start(){if(!me.nick){$("msg").textContent="✍️ Enter your name and press Save to play";openPf();setTimeout(()=>{const n=$("pn");if(n)n.focus()},60);return}if(cd)return;cd=1;$("go").disabled=true;$("df").disabled=true;$("ov").style.display="flex";for(let i=3;i>0;i--){$("ovt").textContent=i;$("ovs").textContent="Get ready...";snd(500,.1);await new Promise(r=>setTimeout(r,700))}cd=0;g={m:D[$("df").value].m,sc:0,hits:0,clicks:0,rt:0,combo:0,maxCombo:0,end:performance.now()+30000};$("comboValue").textContent="0×";$("comboHud").classList.remove("hot");spawn();$("go").disabled=true;$("ov").style.display="none";P=[];$("msg").textContent="";loop()}
+async function start(){if(!me.nick){$("msg").textContent="✍️ Enter your name and press Save to play";openPf();setTimeout(()=>{const n=$("pn");if(n)n.focus()},60);return}if(cd||g)return;const scope=gameEpoch;cd=1;$("go").disabled=true;$("df").disabled=true;$("ov").style.display="flex";for(let i=3;i>0;i--){$("ovt").textContent=i;$("ovs").textContent="Get ready...";snd(500,.1);await new Promise(r=>setTimeout(r,700));if(scope!==gameEpoch)return;}cd=0;g={m:D[$("df").value].m,sc:0,hits:0,clicks:0,rt:0,combo:0,maxCombo:0,end:performance.now()+30000};$("comboValue").textContent="0×";$("comboHud").classList.remove("hot");spawn();$("go").disabled=true;$("ov").style.display="none";P=[];$("msg").textContent="";loop()}
 function loop(){if(!g)return;const now=performance.now(),left=Math.max(0,(g.end-now)/1000);$("tm").textContent=Math.ceil(left);
 if(g.t&&now-g.t.t0>g.t.life){g.clicks++;updateCombo(false);spawn()}
 x.clearRect(0,0,800,500);if(g.t){const k=1-(now-g.t.t0)/g.t.life*.5,t=g.t;const tc=me.tc||"#ff5a1f";x.shadowColor=tc;x.shadowBlur=24;x.fillStyle=tc;x.beginPath();x.arc(t.x,t.y,t.r*k,0,7);x.fill();x.shadowBlur=0;x.fillStyle="#fff";x.beginPath();x.arc(t.x,t.y,t.r*k*.62,0,7);x.fill();x.fillStyle=tc;x.beginPath();x.arc(t.x,t.y,t.r*k*.3,0,7);x.fill()}pd();
@@ -738,3 +744,4 @@ $("sc").textContent=g.sc;$("ac").textContent=Math.round(g.hits/g.clicks*100)+"%"
 })();
 $("go").onclick=start;profile();renderChallenges();login();init();
 </script></body></html>
+

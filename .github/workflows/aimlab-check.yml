@@ -1,4 +1,6 @@
 name: AIMLAB browser-script and security checks
+permissions:
+  contents: read
 on:
   push:
     branches: [main]
@@ -14,3 +16,6 @@ jobs:
           node-version: '22'
       - name: Validate script syntax and ownership safeguards
         run: node tests/static-check.mjs
+      - name: Verify account isolation and ranked metric restoration
+        run: node --test tests/*.test.js
+

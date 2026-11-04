@@ -44,7 +44,7 @@ create policy "players_owner_update" on public.players
   using ((select auth.uid()) is not null and (select auth.uid()) = user_id)
   with check ((select auth.uid()) is not null and (select auth.uid()) = user_id);
 
-revoke insert, update, delete on public.players from public, anon;
+revoke all privileges on public.players from public, anon, authenticated;
 grant select on public.players to anon, authenticated;
 grant insert, update on public.players to authenticated;
 
@@ -75,3 +75,4 @@ create index if not exists players_ranking_best_idx
 
 -- Owner-specific RLS protects rows; the browser still calculates scores locally.
 -- Use server-side verification if you need authoritative anti-cheat rankings.
+
