@@ -403,6 +403,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}
   #intro:not(.out){animation:introFailSafe .15s forwards!important}
 }
+/* Auth controls match the active light/dark AIMLAB palette. */
+.entry-auth{border:1px solid var(--bd);border-radius:14px;background:var(--card);padding:14px}
+.entry-auth label{font-size:12px;font-weight:700;color:var(--mu)}
+.entry-auth input{width:100%;min-width:0;border:1px solid var(--bd);border-radius:11px;padding:12px 14px;background:var(--bg);color:var(--tx);font:inherit}
+.entry-auth input:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.entry-auth button{flex:1;min-width:115px;font-size:12px;padding:11px 12px}
+#authLogout{border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit;padding:9px 14px}
 </style></head><body><div id="intro" role="status" aria-label="Loading AIMLAB"><div class="intro-inner"><div class="intro-aim" aria-hidden="true"></div><div class="intro-title">AIM<em>LAB</em></div><div class="intro-sub">PRECISION · SPEED · RANK</div><div class="intro-bar"><i></i></div><button id="intro-skip" type="button">SKIP INTRO →</button></div></div><script>
 /* Remember the user's preferred eye-comfort theme before painting the page. */
 (function(){
