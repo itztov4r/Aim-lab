@@ -447,18 +447,70 @@ const $=id=>document.getElementById(id),cv=$("cv"),x=cv.getContext("2d");
 // Configure these two values from your Supabase project (Project Settings > API)
 const SUPABASE_URL = "https://tgrvkfljqwaapbnqfifp.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GO6cRImSnd3MaW3aN23ynA_FGLFd-Qo";
-let db=null,an="",uid=null,me={games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0},g=null,mouse={x:400,y:250};
+let db=null,an="",uid=null,authUser=null,me={games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0},g=null,mouse={x:400,y:250};
 const configured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
 function localNick(){try{return localStorage.getItem("aimlab_nick")||""}catch(e){return ""}}
 function saveLocalNick(v){try{localStorage.setItem("aimlab_nick",v)}catch(e){}}
 async function persistPlayer(){
-  if(!me.nick)return false;
+  if(!me.nick){return false}
   saveLocalProgress();
-  if(!db)return false;
-  const row={nick:me.nick,nick_lc:me.nick.toLowerCase(),best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:Math.round(me.rtSum||0),updated_at:new Date().toISOString()};
-  const {error}=await db.from("players").upsert(row,{onConflict:"nick"});
-  if(error){console.error("Leaderboard save:",error);return false;}
+  if(!db||!authUser){return false}
+  const row={nick:me.nick,nick_lc:me.nick.toLowerCase(),user_id:authUser.id,best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:Math.round(me.rtSum||0),updated_at:new Date().toISOString()};
+  // First look up the row BY AUTHENTICATED OWNER, never by a nickname.
+  const {data:mine,error:lookupError}=await db.from("players").select("nick").eq("user_id",authUser.id).maybeSingle();
+  if(lookupError){console.error("Player ownership lookup:",lookupError);return false}
+  let error;
+  if(mine){
+    ({error}=await db.from("players").update(row).eq("user_id",authUser.id));
+  }else{
+    ({error}=await db.from("players").insert(row));
+  }
+  if(error){console.error("Leaderboard save:",error);return false}
   return true;
+}
+
+async function loadOwnedPlayer(){
+  if(!db||!authUser)return;
+  const {data,error}=await db.from("players").select("*").eq("user_id",authUser.id).maybeSingle();
+  if(error){toast("Could not load your account profile");return}
+  if(data){
+    const fresh={nick:data.nick,best:data.best||0,pic:data.pic||null,games:data.games||0,hits:data.hits||0,clicks:data.clicks||0,rtSum:Number(data.rt_sum)||0,coins:0};
+    me=fresh;
+    restoreLocalProgress();
+    // Database is authoritative for ranked metrics; local browser storage only carries cosmetics/coins.
+    me.best=fresh.best;me.games=fresh.games;me.hits=fresh.hits;me.clicks=fresh.clicks;me.rtSum=fresh.rtSum;
+    saveLocalNick(me.nick);
+  }else{
+    // Never silently claim old nickname-only scores as a new authenticated account.
+    me={nick:"",games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0};
+  }
+  profile();renderChallenges();login();
+}
+
+async function signInPlayer(register){
+  if(!db){toast("Online accounts are unavailable right now");return}
+  const email=$("authEmail")?.value.trim(),password=$("authPassword")?.value;
+  if(!email||!password||password.length<8){toast("Use a valid email and password (at least 8 characters)");return}
+  const result=register?await db.auth.signUp({email,password}):await db.auth.signInWithPassword({email,password});
+  if(result.error){toast(result.error.message||"Authentication failed");return}
+  if(!result.data.session){
+    toast("Check your email for confirmation, then sign in.");
+    return;
+  }
+  authUser=result.data.user;
+  await loadOwnedPlayer();
+  await board();
+  openPf();
+  toast(register?"Account created. Choose an available nickname.":"Signed in successfully");
+}
+
+async function logoutPlayer(){
+  if(db){const {error}=await db.auth.signOut();if(error){toast("Unable to sign out: "+error.message);return}}
+  authUser=null;
+  // Signing out must not retain another account's identity or database scores.
+  me={nick:"",games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0};
+  saveLocalNick("");
+  profile();renderChallenges();login();openPf();toast("Signed out");
 }
 
 function profile(){saveLocalProgress();const b=me.best,i=rank(b),n=R[i+1],p=n?(b-R[i][1])/(n[1]-R[i][1])*100:100;
@@ -516,7 +568,7 @@ let P=[];const pd=()=>{P=P.filter(p=>p.l>0);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.
 const esc=s=>String(s).replace(/[<>&"']/g,"");const bonus=p=>{let b=0;for(let r=p+1;r<=rank(me.best);r++)b+=100*r;me.coins=(me.coins||0)+b;return b};
 function login(){const si=db,nm=esc(me.nick||an||"Guest"),ok=me.pic&&String(me.pic).startsWith("data:image/jpeg;base64,");
 $("who").textContent=nm;$("hav").innerHTML=ok?`<img src="${String(me.pic).replace(/["'<>]/g,"")}" alt="">`:(me.nick?nm[0].toUpperCase():"?");
-$("hu").title=si?"Edit your player profile":"Choose your player nickname"}
+$("hu").title=authUser?"Secure player account":si?"Sign in or edit your profile":"Choose your player nickname"}
 $("hu").onclick=openPf;
 let AC=null,mute=false,cd=0;const D={1:{r:[22,42],life:2000,m:.8},2:{r:[16,34],life:1500,m:1},3:{r:[10,24],life:1000,m:1.5}};
 const snd=(f,d,t="sine",v=.08)=>{if(mute)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),q=AC.createGain();o.type=t;o.frequency.value=f;q.gain.value=v;q.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(q);q.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(er){}};
@@ -529,27 +581,47 @@ function openPf(){
  +'<label for="pn" class="entry-field">Player nickname (2–16 characters)</label>'
  +'<form id="nickForm" class="entry-form"><input id="pn" name="nickname" minlength="2" maxlength="16" required autocomplete="nickname" placeholder="e.g. Tov4r" value="'+esc(me.nick||"")+'"><button type="submit" id="pns">'+(active?"Update profile":"Start playing")+'</button></form>'
  +'<div class="entry-msg" id="entryMsg" role="status"></div>'
- +'<div class="entry-tip">🎮 No password required. This is a nickname-based player profile, not a secure account. Your nickname is remembered on this device; do not use private information.</div>'
+ +'<div class="entry-tip">'+(authUser?'🔒 Signed in as '+esc(authUser.email||'player')+'. Your score belongs only to your account.':'🔒 To save scores online, create an account or sign in. Otherwise your progress stays on this device.')+'</div>'
+ +(!authUser?'<div class="entry-auth" style="display:grid;gap:8px;margin:12px 0"><label for="authEmail">Email for your account</label><input id="authEmail" type="email" autocomplete="email" placeholder="you@example.com"><label for="authPassword">Password (8+ characters)</label><input id="authPassword" type="password" autocomplete="current-password" minlength="8"><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="authLogin">Sign in</button><button type="button" id="authRegister">Create account</button></div></div>':'<button type="button" id="authLogout" style="margin:8px 0">Sign out</button>')
  +'<div class="entry-footer"><span class="mu" style="font-size:12px">Online leaderboard • community ranks</span><button id="entryView" type="button">👤 View my stats</button></div>';
  $("pf3").onchange=pic;
+ if(authUser){$("authLogout").onclick=logoutPlayer}
+ else{
+   $("authLogin").onclick=()=>signInPlayer(false);
+   $("authRegister").onclick=()=>signInPlayer(true);
+ }
  $("nickForm").onsubmit=async e=>{e.preventDefault();const b=$("pns");b.disabled=true;const ok=await saveName($("pn").value);b.disabled=false;if(ok)$("pm").classList.remove("on");else $("entryMsg").textContent="Nickname unavailable or connection issue. Try another name."};
  $("entryView").onclick=()=>{if(!me.nick){$("entryMsg").textContent="Choose your nickname first";return}$("pm").classList.remove("on");openPublicProfile({nick:me.nick,best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:me.rtSum||0,updated_at:new Date().toISOString()},0)};
  $("pm").classList.add("on");setTimeout(()=>{const n=$("pn");if(n)n.focus()},80)
 }
 
 async function saveName(raw){
- const v=esc(raw.trim()).slice(0,16),lc=v.toLowerCase();
- if(v.length<2){toast("✍️ Enter 2–16 characters");return false}
+ const v=raw.trim().slice(0,16),lc=v.toLowerCase();
+ if(v.length<2||!/^[a-zA-Z0-9_-]{2,16}$/.test(v)){toast("Use 2–16 letters, numbers, _ or -");return false}
  if(db){
-   const {data:existing,error}=await db.from("players").select("nick").eq("nick_lc",lc).maybeSingle();
-   if(error){toast("⚠️ Database connection error");return false}
-   if(existing && existing.nick!==me.nick){toast("⛔ This name is already taken, pick another one");return false}
+   const {data:existing,error}=await db.from("players").select("nick,user_id").eq("nick_lc",lc).maybeSingle();
+   if(error){toast("Database connection error");return false}
+   if(existing && (!authUser||existing.user_id!==authUser.id)){
+     toast("This nickname is already reserved. Choose another one.");
+     return false;
+   }
  }
- const changed=!!me.nick&&me.nick.toLowerCase()!==lc;if(changed)saveLocalProgress();
- if(changed)me={nick:v,games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0};
+ const changed=!!me.nick&&me.nick.toLowerCase()!==lc;
+ if(changed)saveLocalProgress();
+ if(changed && !authUser)me={nick:v,games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0};
  else me.nick=v;
- saveLocalNick(v);restoreLocalProgress();profile();renderChallenges();login();
- const ok=await persistPlayer();if(ok)await board();toast(ok?"✅ Player profile saved online":"✅ Player name saved locally");return true
+ saveLocalNick(v);
+ if(!authUser)restoreLocalProgress();
+ profile();renderChallenges();login();
+ if(authUser){
+   const ok=await persistPlayer();
+   if(!ok){toast("Could not save to your account. Try another nickname.");return false}
+   await board();
+   toast("Secure player profile saved online");
+ }else{
+   toast("Name saved on this device. Sign in to save online.");
+ }
+ return true;
 }
 $("px").onclick=()=>$("pm").classList.remove("on");$("pm").onclick=e=>{if(e.target===$("pm"))$("pm").classList.remove("on")};document.addEventListener("keydown",e=>{if(e.key==="Escape")$("pm").classList.remove("on")});
 function pic(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=async()=>{const c=document.createElement("canvas");c.width=c.height=96;const m=Math.min(im.width,im.height);c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,96,96);me.pic=c.toDataURL("image/jpeg",.8);await persistPlayer();login();if($("pm").classList.contains("on"))openPf();toast("📸 Photo updated")};im.onerror=()=>toast("Could not read this image");im.src=r.result};r.readAsDataURL(f)}
@@ -606,13 +678,18 @@ function waitForSupabaseSdk(){
 async function init(){
  me.nick=localNick();restoreLocalProgress();
  if(configured && await waitForSupabaseSdk()){
-   if(!window.supabase?.createClient){$("lb").textContent="Online rankings temporarily unavailable";return}
-   const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-   db=client;
-   if(me.nick){const {data,error}=await db.from("players").select("*").eq("nick",me.nick).maybeSingle();if(!error&&data){me=Object.assign(me,{best:Math.max(me.best||0,data.best||0),pic:data.pic||null,games:Math.max(me.games||0,data.games||0),hits:Math.max(me.hits||0,data.hits||0),clicks:Math.max(me.clicks||0,data.clicks||0),rtSum:Math.max(me.rtSum||0,Number(data.rt_sum)||0)});}}
-   profile();renderChallenges();await board();
-   // Refresh rankings periodically so players see other people's latest scores.
-   setInterval(board,10000);
+   if(window.supabase?.createClient){
+     db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+     const {data,error}=await db.auth.getUser();
+     if(!error&&data?.user){
+       authUser=data.user;
+       await loadOwnedPlayer();
+     }
+     await board();
+     setInterval(board,10000);
+   }else{
+     $("lb").textContent="Online rankings temporarily unavailable. Scores save on this device.";
+   }
  }else{
    $("lb").textContent="Online leaderboard temporarily unavailable. You can still play; scores save on this device.";
  }
@@ -630,7 +707,7 @@ if(left<=0)return done();requestAnimationFrame(loop)}
 async function done(){const s=g;g=null;$("go").disabled=false;$("df").disabled=false;x.clearRect(0,0,800,500);$("ov").style.display="flex";$("ovt").textContent=s.sc+" PTS";$("ovs").textContent=`${s.hits} hits · ${s.clicks?Math.round(s.hits/s.clicks*100):0}% accuracy · ${s.hits?Math.round(s.rt/s.hits):0} ms reaction · 🪙 +${Math.floor(s.sc/50)} coins`;
 const nr=s.hits?s.rt/s.hits:0,prev=rank(me.best),ob=me.best;me.games++;me.hits+=s.hits;me.clicks+=s.clicks;me.rtSum+=Math.round(s.rt);me.best=Math.max(me.best,s.sc);finishQuests(s);const pb=(s.clicks&&s.hits/s.clicks>=.9?20:0)+(ob>0&&s.sc>ob?30:0);const gc=Math.floor(s.sc/50);me.coins=(me.coins||0)+pb+gc;if(rank(me.best)>prev)[523,659,784,1047].forEach((f,i)=>setTimeout(()=>snd(f,.18,"triangle",.1),i*120));else snd(440,.25,"triangle");
 $("msg").textContent=`Final: ${s.sc} pts · ${s.hits} hits · ${Math.round(nr)} ms · 🪙 +${gc}`+(rank(me.best)>prev?` · 🎉 Rank up: ${R[rank(me.best)][0]}! Bonus +${bonus(prev)} coins`:"")+(pb?` · 🎯 +${pb} bonus (accuracy / new best)`:"");profile();
-saveLocalProgress();if(db){const saved=await persistPlayer();toast(saved?"✅ Score saved online!":"⚠️ Online save failed — score saved on this device");await board()}else toast("⚠️ Offline — score saved on this device");fx();cu(s.sc);setTimeout(()=>{if(g)return;view("lb");$("pap").style.display="";$("res").innerHTML=`<div class="rs"><div class="mu">YOUR SCORE</div><div class="rk" style="color:var(--ac)">${s.sc}</div><div class="mu">${$("msg").textContent}</div></div>`},2600)}
+saveLocalProgress();if(db){const saved=await persistPlayer();toast(saved?"✅ Score saved securely online!":"⚠️ Sign in to save scores online — score saved on this device");await board()}else toast("⚠️ Offline — score saved on this device");fx();cu(s.sc);setTimeout(()=>{if(g)return;view("lb");$("pap").style.display="";$("res").innerHTML=`<div class="rs"><div class="mu">YOUR SCORE</div><div class="rk" style="color:var(--ac)">${s.sc}</div><div class="mu">${$("msg").textContent}</div></div>`},2600)}
 cv.addEventListener("pointermove",e=>{const b=cv.getBoundingClientRect();mouse={x:(e.clientX-b.left)*800/b.width,y:(e.clientY-b.top)*500/b.height}});
 cv.addEventListener("pointerdown",e=>{if(!g)return;const b=cv.getBoundingClientRect(),px=(e.clientX-b.left)*800/b.width,py=(e.clientY-b.top)*500/b.height;mouse={x:px,y:py};
 g.clicks++;const t=g.t;if(t&&Math.hypot(px-t.x,py-t.y)<=t.r){const rt=performance.now()-t.t0,pts=Math.round((50+100*Math.max(0,1-rt/t.life))*g.m);g.hits++;g.rt+=rt;g.sc+=pts;updateCombo(true);snd(700+Math.min(pts,200)*2,.07,"triangle");for(let i=0;i<12;i++){const a=Math.random()*6.28,s=1+Math.random()*4;P.push({x:t.x,y:t.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1})}P.push({x:t.x,y:t.y-t.r,vx:0,vy:-1,l:1.4,tx:"+"+pts});spawn()}else{updateCombo(false);snd(150,.12,"sawtooth",.05);cv.classList.remove("ms");void cv.offsetWidth;cv.classList.add("ms")}
