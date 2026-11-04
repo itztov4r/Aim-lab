@@ -21,20 +21,32 @@ create policy "Anyone can read leaderboard"
 on public.players for select to anon, authenticated
 using (true);
 
--- Anonymous browser clients can submit/update a public nickname score.
--- This simple no-account setup is convenient, but it is NOT cheat-proof.
+-- Authenticated users own their scores; anonymous visitors can only read.
+-- Legacy users have NULL user_id and are preserved as read-only.
+alter table public.players
+  add column if not exists user_id uuid references auth.users(id) on delete set null;
+create unique index if not exists players_user_id_unique on public.players(user_id);
+
 drop policy if exists "Anyone can add leaderboard players" on public.players;
-create policy "Anyone can add leaderboard players"
-on public.players for insert to anon, authenticated
-with check (true);
-
 drop policy if exists "Anyone can update leaderboard players" on public.players;
-create policy "Anyone can update leaderboard players"
-on public.players for update to anon, authenticated
-using (true) with check (true);
+drop policy if exists "Anyone can read leaderboard" on public.players;
+drop policy if exists "players_public_read" on public.players;
+drop policy if exists "players_owner_insert" on public.players;
+drop policy if exists "players_owner_update" on public.players;
 
-grant select, insert, update on public.players to anon, authenticated;
+create policy "players_public_read" on public.players
+  for select to anon, authenticated using (true);
+create policy "players_owner_insert" on public.players
+  for insert to authenticated
+  with check ((select auth.uid()) is not null and (select auth.uid()) = user_id);
+create policy "players_owner_update" on public.players
+  for update to authenticated
+  using ((select auth.uid()) is not null and (select auth.uid()) = user_id)
+  with check ((select auth.uid()) is not null and (select auth.uid()) = user_id);
 
+revoke insert, update, delete on public.players from public, anon;
+grant select on public.players to anon, authenticated;
+grant insert, update on public.players to authenticated;
 
 -- Database hardening applied to the live AIMLAB project (2026-11-04).
 -- Keep future clean installs consistent with the live schema.
@@ -61,6 +73,5 @@ end $$;
 create index if not exists players_ranking_best_idx
   on public.players (best desc, updated_at desc);
 
--- IMPORTANT: these checks do NOT protect account ownership. Current public
--- UPDATE policy is still open; migrate the frontend to Supabase Auth and
--- owner-specific RLS before restricting UPDATE, to avoid breaking score saves.
+-- Owner-specific RLS protects rows; the browser still calculates scores locally.
+-- Use server-side verification if you need authoritative anti-cheat rankings.
