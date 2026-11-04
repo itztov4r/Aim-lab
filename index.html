@@ -130,7 +130,7 @@ function localNick(){try{return localStorage.getItem("aimlab_nick")||""}catch(e)
 function saveLocalNick(v){try{localStorage.setItem("aimlab_nick",v)}catch(e){}}
 async function persistPlayer(){
   if(!db || !me.nick) return;
-  const row={nick:me.nick,nick_lc:me.nick.toLowerCase(),best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:me.rtSum||0,updated_at:new Date().toISOString()};
+  const row={nick:me.nick,nick_lc:me.nick.toLowerCase(),best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:Math.round(me.rtSum||0),updated_at:new Date().toISOString()};
   const {error}=await db.from("players").upsert(row,{onConflict:"nick"});
   if(error){console.error("Leaderboard save:",error);toast("⚠️ Online score not saved");}else saveLocalProgress();
 }
