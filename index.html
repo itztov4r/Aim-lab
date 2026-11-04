@@ -115,8 +115,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 /* Intro + on-device preservation of shop progress. Online score API stays unchanged. */
 (function(){const e=document.getElementById("intro");if(!e)return;let done=false;const close=()=>{if(done)return;done=true;e.classList.add("out");setTimeout(()=>e.remove(),700)};document.getElementById("intro-skip").onclick=close;setTimeout(close,matchMedia("(prefers-reduced-motion: reduce)").matches?150:1900)})();
 function localProgressKey(n){return "aimlab_progress_v2_"+String(n||"").toLowerCase()}
-function saveLocalProgress(){if(!me.nick)return;try{localStorage.setItem(localProgressKey(me.nick),JSON.stringify({coins:me.coins||0,owned:me.owned||[],cx:me.cx||null,tc:me.tc||null,last:me.last||null,streak:me.streak||0}))}catch(e){console.warn("Progress save failed",e)}}
-function restoreLocalProgress(){if(!me.nick)return;try{const p=JSON.parse(localStorage.getItem(localProgressKey(me.nick))||"null");if(!p)return;me.coins=Math.max(0,Number(p.coins)||0);me.owned=Array.isArray(p.owned)?p.owned.filter(i=>Number.isInteger(i)&&i>=0&&i<SH.length):[];me.cx=typeof p.cx==="string"?p.cx:undefined;me.tc=typeof p.tc==="string"?p.tc:undefined;me.last=typeof p.last==="string"?p.last:undefined;me.streak=Math.min(7,Math.max(0,Number(p.streak)||0))}catch(e){console.warn("Progress restore failed",e)}}
+function saveLocalProgress(){if(!me.nick)return;try{localStorage.setItem(localProgressKey(me.nick),JSON.stringify({best:me.best||0,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rtSum:Math.round(me.rtSum||0),coins:me.coins||0,owned:me.owned||[],cx:me.cx||null,tc:me.tc||null,last:me.last||null,streak:me.streak||0}))}catch(e){console.warn("Progress save failed",e)}}
+function restoreLocalProgress(){if(!me.nick)return;try{const p=JSON.parse(localStorage.getItem(localProgressKey(me.nick))||"null");if(!p)return;me.best=Math.max(me.best||0,Number(p.best)||0);me.games=Math.max(me.games||0,Number(p.games)||0);me.hits=Math.max(me.hits||0,Number(p.hits)||0);me.clicks=Math.max(me.clicks||0,Number(p.clicks)||0);me.rtSum=Math.max(me.rtSum||0,Number(p.rtSum)||0);me.coins=Math.max(0,Number(p.coins)||0);me.owned=Array.isArray(p.owned)?p.owned.filter(i=>Number.isInteger(i)&&i>=0&&i<SH.length):[];me.cx=typeof p.cx==="string"?p.cx:undefined;me.tc=typeof p.tc==="string"?p.tc:undefined;me.last=typeof p.last==="string"?p.last:undefined;me.streak=Math.min(7,Math.max(0,Number(p.streak)||0))}catch(e){console.warn("Progress restore failed",e)}}
 
 const R=[["Iron",0],["Bronze",1000],["Silver",1800],["Gold",2500],["Platinum",3100],["Diamond",3700],["Elite",4300]];
 const RC=["#8b93a1","#cd7f32","#c0c7d1","#ffc107","#3ddbd9","#5aa9ff","#ff3d71"];const rank=b=>{let i=0;R.forEach((r,j)=>{if(b>=r[1])i=j});return i};
@@ -129,10 +129,13 @@ const configured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes
 function localNick(){try{return localStorage.getItem("aimlab_nick")||""}catch(e){return ""}}
 function saveLocalNick(v){try{localStorage.setItem("aimlab_nick",v)}catch(e){}}
 async function persistPlayer(){
-  if(!db || !me.nick) return;
+  if(!me.nick)return false;
+  saveLocalProgress();
+  if(!db)return false;
   const row={nick:me.nick,nick_lc:me.nick.toLowerCase(),best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:Math.round(me.rtSum||0),updated_at:new Date().toISOString()};
   const {error}=await db.from("players").upsert(row,{onConflict:"nick"});
-  if(error){console.error("Leaderboard save:",error);toast("⚠️ Online score not saved");}else saveLocalProgress();
+  if(error){console.error("Leaderboard save:",error);return false;}
+  return true;
 }
 
 function profile(){saveLocalProgress();const b=me.best,i=rank(b),n=R[i+1],p=n?(b-R[i][1])/(n[1]-R[i][1])*100:100;
@@ -183,7 +186,7 @@ async function init(){
  if(configured && window.supabase){
    const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
    db=client;
-   if(me.nick){const {data,error}=await db.from("players").select("*").eq("nick",me.nick).maybeSingle();if(!error&&data){me=Object.assign(me,{best:data.best||0,pic:data.pic||null,games:data.games||0,hits:data.hits||0,clicks:data.clicks||0,rtSum:data.rt_sum||0});}}
+   if(me.nick){const {data,error}=await db.from("players").select("*").eq("nick",me.nick).maybeSingle();if(!error&&data){me=Object.assign(me,{best:Math.max(me.best||0,data.best||0),pic:data.pic||null,games:Math.max(me.games||0,data.games||0),hits:Math.max(me.hits||0,data.hits||0),clicks:Math.max(me.clicks||0,data.clicks||0),rtSum:Math.max(me.rtSum||0,Number(data.rt_sum)||0)});}}
    profile();await board();
    // Refresh rankings periodically so players see other people's latest scores.
    setInterval(board,10000);
@@ -201,9 +204,9 @@ x.clearRect(0,0,800,500);if(g.t){const k=1-(now-g.t.t0)/g.t.life*.5,t=g.t;const 
 x.strokeStyle=me.cx||(me.best>=1000?RC[rank(me.best)]:"#39ff88");x.lineWidth=2;const m=mouse;x.beginPath();x.moveTo(m.x-10,m.y);x.lineTo(m.x-3,m.y);x.moveTo(m.x+3,m.y);x.lineTo(m.x+10,m.y);x.moveTo(m.x,m.y-10);x.lineTo(m.x,m.y-3);x.moveTo(m.x,m.y+3);x.lineTo(m.x,m.y+10);x.stroke();
 if(left<=0)return done();requestAnimationFrame(loop)}
 async function done(){const s=g;g=null;$("go").disabled=false;$("df").disabled=false;x.clearRect(0,0,800,500);$("ov").style.display="flex";$("ovt").textContent=s.sc+" PTS";$("ovs").textContent=`${s.hits} hits · ${s.clicks?Math.round(s.hits/s.clicks*100):0}% accuracy · ${s.hits?Math.round(s.rt/s.hits):0} ms reaction · 🪙 +${Math.floor(s.sc/50)} coins`;
-const nr=s.hits?s.rt/s.hits:0,prev=rank(me.best),ob=me.best;me.games++;me.hits+=s.hits;me.clicks+=s.clicks;me.rtSum+=s.rt;me.best=Math.max(me.best,s.sc);const pb=(s.clicks&&s.hits/s.clicks>=.9?20:0)+(ob>0&&s.sc>ob?30:0);const gc=Math.floor(s.sc/50);me.coins=(me.coins||0)+pb+gc;if(rank(me.best)>prev)[523,659,784,1047].forEach((f,i)=>setTimeout(()=>snd(f,.18,"triangle",.1),i*120));else snd(440,.25,"triangle");
+const nr=s.hits?s.rt/s.hits:0,prev=rank(me.best),ob=me.best;me.games++;me.hits+=s.hits;me.clicks+=s.clicks;me.rtSum+=Math.round(s.rt);me.best=Math.max(me.best,s.sc);const pb=(s.clicks&&s.hits/s.clicks>=.9?20:0)+(ob>0&&s.sc>ob?30:0);const gc=Math.floor(s.sc/50);me.coins=(me.coins||0)+pb+gc;if(rank(me.best)>prev)[523,659,784,1047].forEach((f,i)=>setTimeout(()=>snd(f,.18,"triangle",.1),i*120));else snd(440,.25,"triangle");
 $("msg").textContent=`Final: ${s.sc} pts · ${s.hits} hits · ${Math.round(nr)} ms · 🪙 +${gc}`+(rank(me.best)>prev?` · 🎉 Rank up: ${R[rank(me.best)][0]}! Bonus +${bonus(prev)} coins`:"")+(pb?` · 🎯 +${pb} bonus (accuracy / new best)`:"");profile();
-if(db){await persistPlayer();await board()}else saveLocalProgress();fx();cu(s.sc);setTimeout(()=>{if(g)return;view("lb");$("pap").style.display="";$("res").innerHTML=`<div class="rs"><div class="mu">YOUR SCORE</div><div class="rk" style="color:var(--ac)">${s.sc}</div><div class="mu">${$("msg").textContent}</div></div>`},2600)}
+saveLocalProgress();if(db){const saved=await persistPlayer();toast(saved?"✅ Score saved online!":"⚠️ Online save failed — score saved on this device");await board()}else toast("⚠️ Offline — score saved on this device");fx();cu(s.sc);setTimeout(()=>{if(g)return;view("lb");$("pap").style.display="";$("res").innerHTML=`<div class="rs"><div class="mu">YOUR SCORE</div><div class="rk" style="color:var(--ac)">${s.sc}</div><div class="mu">${$("msg").textContent}</div></div>`},2600)}
 cv.addEventListener("pointermove",e=>{const b=cv.getBoundingClientRect();mouse={x:(e.clientX-b.left)*800/b.width,y:(e.clientY-b.top)*500/b.height}});
 cv.addEventListener("pointerdown",e=>{if(!g)return;const b=cv.getBoundingClientRect(),px=(e.clientX-b.left)*800/b.width,py=(e.clientY-b.top)*500/b.height;mouse={x:px,y:py};
 g.clicks++;const t=g.t;if(t&&Math.hypot(px-t.x,py-t.y)<=t.r){const rt=performance.now()-t.t0,pts=Math.round((50+100*Math.max(0,1-rt/t.life))*g.m);g.hits++;g.rt+=rt;g.sc+=pts;snd(700+Math.min(pts,200)*2,.07,"triangle");for(let i=0;i<12;i++){const a=Math.random()*6.28,s=1+Math.random()*4;P.push({x:t.x,y:t.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1})}P.push({x:t.x,y:t.y-t.r,vx:0,vy:-1,l:1.4,tx:"+"+pts});spawn()}else{snd(150,.12,"sawtooth",.05);cv.classList.remove("ms");void cv.offsetWidth;cv.classList.add("ms")}
