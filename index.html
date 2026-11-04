@@ -133,13 +133,72 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid 
 @keyframes comboFlash{0%{opacity:0;transform:translate(-50%,4px) scale(.7)}25%{opacity:1;transform:translate(-50%,-4px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-25px) scale(1)}}
 @media(min-width:651px){.hud{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){#comboHud.hot,#comboFlash.show{animation:none}#comboFlash.show{opacity:1}}
+
+/* Player access / public profiles / searchable leaderboard */
+.lb-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:4px 0 14px}
+.lb-search{background:rgba(127,127,127,.08);border:1px solid var(--bd);border-radius:12px;color:var(--tx);padding:11px 14px;font:inherit;min-width:0;flex:1;max-width:360px}
+.lb-search:focus{outline:2px solid var(--ac);outline-offset:2px}
+.lb-hint{font-size:12px;color:var(--mu);letter-spacing:0}
+.lb-player{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:69px;padding:11px 13px;border:1px solid transparent;border-bottom:1px solid var(--bd);border-radius:10px;background:transparent;color:var(--tx);box-shadow:none;text-align:left;letter-spacing:0;text-transform:none;transition:background .2s,border-color .2s,transform .2s;cursor:pointer}
+.lb-player:hover,.lb-player:focus-visible{background:rgba(255,111,55,.075);border-color:rgba(255,111,55,.36);transform:none;box-shadow:none}
+.lb-player b,.lb-player strong{font-family:'Chakra Petch',Inter,sans-serif}
+.lb-player .player-left{display:flex;align-items:center;gap:12px;min-width:0}
+.lb-player .position{width:27px;flex-shrink:0;color:var(--mu);font-size:12px}
+.lb-player .mini-avatar{width:41px;height:41px;flex-shrink:0;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,#ff7a31,#e8391a);font-weight:800;color:white;overflow:hidden;box-shadow:0 0 14px rgba(255,90,31,.15)}
+.lb-player .mini-avatar img{width:100%;height:100%;object-fit:cover}
+.lb-player .player-name{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:14px}
+.lb-player .player-sub{display:block;margin-top:3px;font-size:11px;color:var(--mu)}
+.lb-player .player-points{text-align:right;white-space:nowrap}
+.lb-player .player-points strong{color:var(--ac);font-size:20px;display:block}
+.lb-player .player-points small{font-size:10px;color:var(--mu)}
+.lb-player.mine{border-color:rgba(255,105,48,.45);background:rgba(255,105,48,.055)}
+.lb-empty{text-align:center;padding:35px 15px;color:var(--mu)}
+#pm{background:rgba(3,5,11,.84);backdrop-filter:blur(11px)}
+#pm .pb{max-width:525px;border-radius:24px;padding:28px 30px 26px;background:linear-gradient(160deg,rgba(255,110,54,.10),transparent 38%),var(--card);border:1px solid var(--bd);box-shadow:0 25px 95px rgba(0,0,0,.5)}
+#pm .pb h2{font-size:29px;letter-spacing:.01em;text-transform:none;color:var(--tx);margin:8px 0 6px}
+#pm .pb .entry-heading{text-transform:uppercase;font-size:11px;color:var(--ac);font-weight:800;letter-spacing:.22em}
+#pm .pb .entry-desc{color:var(--mu);font-size:13px;line-height:1.7;margin:0 0 18px}
+.entry-preview{display:flex;align-items:center;gap:15px;border:1px solid var(--bd);padding:13px;border-radius:16px;background:rgba(127,127,127,.06);margin:18px 0}
+.entry-preview .av{width:66px;height:66px;margin:0;flex-shrink:0;font-size:27px;box-shadow:none}
+.entry-preview .av:after{opacity:1}
+.entry-preview .name{font-weight:800;font-size:17px}
+.entry-preview p{font-size:12px;color:var(--mu);margin:5px 0 0}
+.entry-field{display:block;font-size:11px;font-weight:800;letter-spacing:.13em;color:var(--mu);text-transform:uppercase;margin-bottom:9px}
+.entry-form{display:flex;gap:8px}
+.entry-form input{flex:1;min-width:0;background:rgba(127,127,127,.08);border:1px solid var(--bd);border-radius:11px;padding:13px 14px;color:var(--tx);font:inherit}
+.entry-form button{font-size:12px;letter-spacing:.05em;padding:12px 17px;white-space:nowrap}
+.entry-msg{min-height:20px;margin-top:8px;color:var(--ac);font-size:12px}
+.entry-tip{background:rgba(127,127,127,.055);border:1px solid var(--bd);border-radius:12px;padding:12px;font-size:12px;line-height:1.6;color:var(--mu);margin-top:8px}
+.entry-footer{display:flex;gap:9px;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-top:16px}
+.entry-footer button{background:transparent;border:1px solid var(--bd);color:var(--tx);box-shadow:none;letter-spacing:0;text-transform:none;font-size:12px;padding:9px 13px}
+.entry-footer button:hover{box-shadow:none;border-color:var(--ac)}
+#playerModal{position:fixed;inset:0;z-index:75;background:rgba(2,4,10,.80);backdrop-filter:blur(11px);display:none;place-items:center;padding:18px}
+#playerModal.on{display:grid;animation:zin .2s}
+#playerModal .player-detail{width:min(100%,510px);max-height:90vh;overflow:auto;position:relative;background:var(--card);border:1px solid var(--bd);border-radius:24px;padding:25px;box-shadow:0 25px 95px rgba(0,0,0,.48)}
+#closePlayer{position:absolute;top:12px;right:12px;border:1px solid var(--bd);background:transparent;color:var(--tx);box-shadow:none;letter-spacing:0;border-radius:11px;font-size:14px;padding:7px 12px}
+.player-banner{height:110px;border-radius:16px;background:radial-gradient(circle at 85% 20%,rgba(255,148,60,.35),transparent 45%),linear-gradient(115deg,#251c24,#131925);position:relative;overflow:hidden}
+.player-banner:after{content:"";position:absolute;width:135px;height:135px;right:30px;top:-48px;border-radius:50%;border:2px solid rgba(255,111,52,.37);box-shadow:0 0 0 22px rgba(255,101,40,.05)}
+.player-identity{display:flex;align-items:end;gap:15px;padding:0 8px;margin-top:-29px;position:relative}
+.player-identity .public-avatar{width:82px;height:82px;display:grid;place-items:center;border:4px solid var(--card);background:linear-gradient(135deg,#ff9349,#ff3f1e);border-radius:22px;overflow:hidden;color:white;font-size:34px;font-weight:800}
+.player-identity .public-avatar img{width:100%;height:100%;object-fit:cover}
+.player-identity .player-label{font-size:11px;letter-spacing:.16em;color:var(--ac);font-weight:800}
+.player-identity h3{font:700 25px 'Chakra Petch',sans-serif;margin:4px 0 4px;word-break:break-word;color:var(--tx)}
+.player-rankpanel{margin:20px 0;padding:16px;border-radius:15px;background:rgba(127,127,127,.07);border:1px solid var(--bd)}
+.player-rankpanel h4{margin:0;font:700 22px 'Chakra Petch',sans-serif}
+.player-rankpanel .bar{margin-top:12px;height:9px}
+.player-stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.player-stat{border:1px solid var(--bd);border-radius:13px;background:rgba(127,127,127,.04);padding:13px}
+.player-stat span{display:block;font-size:11px;color:var(--mu);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+.player-stat b{font:700 23px 'Chakra Petch',sans-serif;color:var(--tx)}
+.player-updated{margin:17px 0 0;color:var(--mu);font-size:12px}
+@media(max-width:600px){#pm .pb{padding:21px 17px 19px}.entry-form{flex-direction:column}.lb-player{padding:9px 7px}.lb-player .player-left{gap:7px}.lb-player .mini-avatar{width:34px;height:34px}.player-identity .public-avatar{width:68px;height:68px}}
 </style></head><body><div id="intro" role="status" aria-label="Loading AIMLAB"><div class="intro-inner"><div class="intro-aim" aria-hidden="true"></div><div class="intro-title">AIM<em>LAB</em></div><div class="intro-sub">PRECISION · SPEED · RANK</div><div class="intro-bar"><i></i></div><button id="intro-skip" type="button">SKIP INTRO →</button></div></div><div class="w" id="w" data-v="play">
 <header id="hd"><div class="br"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="16" cy="16" r="9"/><path d="M16 2v7M16 23v7M2 16h7M23 16h7"/></svg><h1>AIM<em>LAB</em></h1></div><i class="vd"></i><nav id="nv"><button data-v="play" class="on">Play</button><button data-v="shop">Shop</button><button data-v="lb">Leaderboard</button><button data-v="challenge">Challenges</button></nav><div class="rt"><i class="vd"></i><div id="cn">🪙 0</div><div id="hu"><div class="av" id="hav">?</div><div id="who">Guest</div><span class="ch">▾</span></div></div></header>
 <section class="hero" aria-label="Game introduction"><div><span class="kicker">TOV4R · AIM TRAINER</span><h2>TRAIN YOUR <strong>AIM.</strong><br>CLIMB THE RANKS.</h2><p>30-second precision challenges. Track your best score and compete on the community leaderboard.</p></div><div class="reticle" aria-hidden="true"></div></section><div class="c" id="gc"><div class="hud"><div>Score <b id="sc">0</b></div><div>Time <b id="tm">30</b></div><div>Acc <b id="ac">–</b></div><div>Reaction <b id="rt">–</b></div><div id="comboHud">Combo <b id="comboValue">0×</b></div></div>
 <div class="cw"><div id="comboFlash" aria-live="off"></div><canvas id="cv" width="800" height="500"></canvas><div id="ov"><div id="ovt">READY?</div><div id="ovs">Enter your name, then press Start</div></div></div>
 <p style="margin:10px 0 0"><select id="df"><option value="1">Easy ×0.8</option><option value="2" selected>Normal ×1</option><option value="3">Hard ×1.5</option></select><button id="go">Start (30s)</button> <span id="msg" class="mu"></span></p></div>
-<div class="c" id="challengec"><div class="challenge-head"><div><h2>🎯 Daily Challenges</h2><p>New objectives every day. Complete missions and unlock achievements.</p></div><button id="claimDaily" type="button">🎁 Claim daily +50</button></div><div id="missions" class="mission-grid"></div><div class="section-line"><h2>🏆 Achievements</h2><span class="mu" id="achievementCount">0 / 6 unlocked</span></div><div id="achievements" class="achievement-grid"></div><p class="mu" style="font-size:12px;margin-top:18px">Daily missions and badges are stored on this device. Your official leaderboard still uses the classic 30-second game.</p></div><div id="pf" hidden></div><div class="c" id="shc"><h2>Shop &amp; Bonuses</h2><div id="sh"></div><p class="mu" style="font-size:12px;margin:8px 0 0">Earn 🪙: daily login (streak up to 7 days), rank-up, 90%+ accuracy, new best score.</p></div><div class="c" id="lbc"><div id="res"></div><h2>Leaderboard</h2><div id="lb" class="lb mu">Connect the online leaderboard to see all players.</div><p id="pap" style="margin:14px 0 0;display:none"><button id="pa">▶ Play again</button></p></div>
-</div><div id="pm"><div class="pb"><button id="px">✕</button><h2>My profile</h2><div id="pmc"></div></div></div><div id="tt"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+<div class="c" id="challengec"><div class="challenge-head"><div><h2>🎯 Daily Challenges</h2><p>New objectives every day. Complete missions and unlock achievements.</p></div><button id="claimDaily" type="button">🎁 Claim daily +50</button></div><div id="missions" class="mission-grid"></div><div class="section-line"><h2>🏆 Achievements</h2><span class="mu" id="achievementCount">0 / 6 unlocked</span></div><div id="achievements" class="achievement-grid"></div><p class="mu" style="font-size:12px;margin-top:18px">Daily missions and badges are stored on this device. Your official leaderboard still uses the classic 30-second game.</p></div><div id="pf" hidden></div><div class="c" id="shc"><h2>Shop &amp; Bonuses</h2><div id="sh"></div><p class="mu" style="font-size:12px;margin:8px 0 0">Earn 🪙: daily login (streak up to 7 days), rank-up, 90%+ accuracy, new best score.</p></div><div class="c" id="lbc"><div id="res"></div><h2>Leaderboard</h2><div class="lb-top"><input id="lbSearch" class="lb-search" type="search" placeholder="🔎 Search players..." aria-label="Search players" maxlength="32"><span id="lbCount" class="lb-hint">Tap a player to view profile</span></div><div id="lb" class="lb mu">Connect the online leaderboard to see all players.</div><p id="pap" style="margin:14px 0 0;display:none"><button id="pa">▶ Play again</button></p></div>
+</div><div id="pm" role="dialog" aria-modal="true" aria-label="Player access"><div class="pb"><button id="px" aria-label="Close player access">✕</button><span class="entry-heading">TOV4R • PLAYER ACCESS</span><h2>Enter the arena.</h2><p class="entry-desc">Choose your player nickname, personalize your avatar and start climbing the leaderboard.</p><div id="pmc"></div></div></div><div id="playerModal" role="dialog" aria-modal="true" aria-label="Public player profile"><div class="player-detail"><button id="closePlayer" aria-label="Close player profile">✕</button><div id="playerModalContent"></div></div></div><div id="tt"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 
 /* Intro + on-device preservation of shop progress. Online score API stays unchanged. */
 (function(){const e=document.getElementById("intro");if(!e)return;let done=false;const close=()=>{if(done)return;done=true;e.classList.add("out");setTimeout(()=>e.remove(),700)};document.getElementById("intro-skip").onclick=close;setTimeout(close,matchMedia("(prefers-reduced-motion: reduce)").matches?150:1900)})();
@@ -222,31 +281,77 @@ let P=[];const pd=()=>{P=P.filter(p=>p.l>0);P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.
 const esc=s=>String(s).replace(/[<>&"']/g,"");const bonus=p=>{let b=0;for(let r=p+1;r<=rank(me.best);r++)b+=100*r;me.coins=(me.coins||0)+b;return b};
 function login(){const si=db,nm=esc(me.nick||an||"Guest"),ok=me.pic&&String(me.pic).startsWith("data:image/jpeg;base64,");
 $("who").textContent=nm;$("hav").innerHTML=ok?`<img src="${String(me.pic).replace(/["'<>]/g,"")}" alt="">`:(me.nick?nm[0].toUpperCase():"?");
-$("hu").title=si?"Signed in":"Guest mode: scores are not saved"}
+$("hu").title=si?"Edit your player profile":"Choose your player nickname"}
 $("hu").onclick=openPf;
 let AC=null,mute=false,cd=0;const D={1:{r:[22,42],life:2000,m:.8},2:{r:[16,34],life:1500,m:1},3:{r:[10,24],life:1000,m:1.5}};
 const snd=(f,d,t="sine",v=.08)=>{if(mute)return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const o=AC.createOscillator(),q=AC.createGain();o.type=t;o.frequency.value=f;q.gain.value=v;q.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+d);o.connect(q);q.connect(AC.destination);o.start();o.stop(AC.currentTime+d)}catch(er){}};
 
-function openPf(){const ok=me.pic&&String(me.pic).startsWith("data:image/jpeg;base64,");$("pmc").innerHTML=`<label class="av" title="Change photo">${ok?`<img src="${String(me.pic).replace(/["'<>]/g,"")}" alt="">`:esc(me.nick||an||"G")[0].toUpperCase()}<input id="pf3" type="file" accept="image/*" hidden></label><div class="mu" style="text-align:center;font-size:12px;margin-bottom:10px">Tap the photo to change it · ${db?"Signed in":"Guest mode (scores not saved)"}</div><div class="nk" style="margin-bottom:12px"><input id="pn" maxlength="16" placeholder="Your name" value="${esc(me.nick||"")}"><button id="pns">Save</button></div>${$("pf").innerHTML}`;$("pf3").onchange=pic;$("pns").onclick=async()=>{if(await saveName($("pn").value))openPf()};$("pm").classList.add("on")}
+function openPf(){
+ const active=!!me.nick;
+ const ok=me.pic&&String(me.pic).startsWith("data:image/jpeg;base64,");
+ const photo=ok?'<img src="'+String(me.pic).replace(/["'<>]/g,"")+'" alt="Your avatar">':esc(active?me.nick[0].toUpperCase():"?");
+ $("pmc").innerHTML='<div class="entry-preview"><label class="av" title="Change avatar">'+photo+'<input id="pf3" type="file" accept="image/*" hidden></label><div><div class="name">'+(active?esc(me.nick):"New player")+'</div><p>'+(active?"Best: "+(me.best||0)+" points • "+(me.games||0)+" games":"Choose a name to create your local profile")+'</p></div></div>'
+ +'<label for="pn" class="entry-field">Player nickname (2–16 characters)</label>'
+ +'<form id="nickForm" class="entry-form"><input id="pn" name="nickname" minlength="2" maxlength="16" required autocomplete="nickname" placeholder="e.g. Tov4r" value="'+esc(me.nick||"")+'"><button type="submit" id="pns">'+(active?"Update profile":"Start playing")+'</button></form>'
+ +'<div class="entry-msg" id="entryMsg" role="status"></div>'
+ +'<div class="entry-tip">🎮 No password required. This is a nickname-based player profile, not a secure account. Your nickname is remembered on this device; do not use private information.</div>'
+ +'<div class="entry-footer"><span class="mu" style="font-size:12px">Online leaderboard • community ranks</span><button id="entryView" type="button">👤 View my stats</button></div>';
+ $("pf3").onchange=pic;
+ $("nickForm").onsubmit=async e=>{e.preventDefault();const b=$("pns");b.disabled=true;const ok=await saveName($("pn").value);b.disabled=false;if(ok)$("pm").classList.remove("on");else $("entryMsg").textContent="Nickname unavailable or connection issue. Try another name."};
+ $("entryView").onclick=()=>{if(!me.nick){$("entryMsg").textContent="Choose your nickname first";return}$("pm").classList.remove("on");openPublicProfile({nick:me.nick,best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:me.rtSum||0,updated_at:new Date().toISOString()},0)};
+ $("pm").classList.add("on");setTimeout(()=>{const n=$("pn");if(n)n.focus()},80)
+}
+
 async function saveName(raw){
  const v=esc(raw.trim()).slice(0,16),lc=v.toLowerCase();
- if(!v){toast("✍️ Enter a name first");return false}
+ if(v.length<2){toast("✍️ Enter 2–16 characters");return false}
  if(db){
    const {data:existing,error}=await db.from("players").select("nick").eq("nick_lc",lc).maybeSingle();
    if(error){toast("⚠️ Database connection error");return false}
    if(existing && existing.nick!==me.nick){toast("⛔ This name is already taken, pick another one");return false}
  }
- me.nick=v;saveLocalNick(v);restoreLocalProgress();profile();renderChallenges();login();await persistPlayer();toast("✅ Name saved");return true
+ const changed=!!me.nick&&me.nick.toLowerCase()!==lc;if(changed)saveLocalProgress();
+ if(changed)me={nick:v,games:0,hits:0,clicks:0,rtSum:0,best:0,coins:0};
+ else me.nick=v;
+ saveLocalNick(v);restoreLocalProgress();profile();renderChallenges();login();
+ const ok=await persistPlayer();if(ok)await board();toast(ok?"✅ Player profile saved online":"✅ Player name saved locally");return true
 }
 $("px").onclick=()=>$("pm").classList.remove("on");$("pm").onclick=e=>{if(e.target===$("pm"))$("pm").classList.remove("on")};document.addEventListener("keydown",e=>{if(e.key==="Escape")$("pm").classList.remove("on")});
 function pic(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=async()=>{const c=document.createElement("canvas");c.width=c.height=96;const m=Math.min(im.width,im.height);c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,96,96);me.pic=c.toDataURL("image/jpeg",.8);await persistPlayer();login();if($("pm").classList.contains("on"))openPf();toast("📸 Photo updated")};im.onerror=()=>toast("Could not read this image");im.src=r.result};r.readAsDataURL(f)}
 const av=v=>v.pic&&String(v.pic).startsWith("data:image/jpeg;base64,")?`<img class="la" src="${String(v.pic).replace(/["'<>]/g,"")}" alt="">`:"";
-async function board(){
- if(!db){$("lb").textContent="Connect Supabase to enable the shared leaderboard.";return}
- const {data,error}=await db.from("players").select("nick,best,pic").order("best",{ascending:false}).limit(100);
- if(error){$("lb").textContent="Could not load leaderboard. Check your Supabase setup.";console.error(error);return}
- $("lb").innerHTML=data.length?data.map((v,i)=>`<div style="${v.nick===me.nick?"color:var(--ac);font-weight:700":""}"><span>${i+1}. ${v.pic?`<img class="la" src="${String(v.pic).replace(/[\"'<>]/g,"")}" alt="">`:""}${esc(v.nick)}${v.nick===me.nick?" (you)":""} <span class="mu">${R[rank(v.best||0)][0]}</span></span><b>${v.best||0}</b></div>`).join(""):"No scores yet. Be the first!";
+let boardPlayers=[];
+function safePic(v){return typeof v==="string"&&/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(v)&&v.length<250000?v:null}
+function openPublicProfile(p,position){
+ if(!p)return;
+ const name=esc(p.nick||"Player"),score=Math.max(0,Math.round(Number(p.best)||0)),i=rank(score),n=R[i+1],progress=n?Math.max(0,Math.min(100,(score-R[i][1])/(n[1]-R[i][1])*100)):100;
+ const hits=Math.max(0,Number(p.hits)||0),clicks=Math.max(0,Number(p.clicks)||0),games=Math.max(0,Number(p.games)||0),acc=clicks?Math.round(hits/clicks*100):0,reaction=hits?Math.round((Number(p.rt_sum)||0)/hits):0;
+ const pic=safePic(p.pic),avatar=pic?'<img src="'+pic+'" alt="Player avatar">':esc(name.charAt(0).toUpperCase());
+ let dateText="Not available";if(p.updated_at){const d=new Date(p.updated_at);if(!isNaN(d.getTime()))dateText=d.toLocaleDateString("en-GB",{year:"numeric",month:"short",day:"numeric"})}
+ $("playerModalContent").innerHTML='<div class="player-banner"></div><div class="player-identity"><div class="public-avatar">'+avatar+'</div><div><span class="player-label">'+(position?"LEADERBOARD #"+position:"PLAYER PROFILE")+'</span><h3>'+name+(p.nick===me.nick?' ★':'')+'</h3><span class="mu" style="font-size:12px">AIMLAB community player</span></div></div>'
+ +'<div class="player-rankpanel"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h4 style="color:'+RC[i]+'">'+R[i][0]+'</h4><b>'+score.toLocaleString("en-GB")+' pts</b></div><div class="bar"><i style="display:block;background:'+RC[i]+';height:100%;width:'+progress+'%"></i></div><span class="mu" style="font-size:12px">'+(n?(n[1]-score)+" pts to "+n[0]:"Maximum rank reached")+'</span></div>'
+ +'<div class="player-stats-grid"><div class="player-stat"><span>🏆 Best score</span><b>'+score.toLocaleString("en-GB")+'</b></div><div class="player-stat"><span>🎮 Games</span><b>'+games+'</b></div><div class="player-stat"><span>🎯 Accuracy</span><b>'+acc+'%</b></div><div class="player-stat"><span>⚡ Avg reaction</span><b>'+(hits?reaction+" ms":"—")+'</b></div><div class="player-stat"><span>✅ Targets hit</span><b>'+hits+'</b></div><div class="player-stat"><span>🖱️ Total attempts</span><b>'+clicks+'</b></div></div><p class="player-updated">Last update: '+esc(dateText)+'</p>';
+ $("playerModal").classList.add("on");$("closePlayer").focus();
 }
+function renderBoard(){
+ const target=$("lb"),query=($("lbSearch").value||"").trim().toLowerCase();
+ const items=boardPlayers.map((v,i)=>({v,i})).filter(o=>(o.v.nick||"").toLowerCase().includes(query));
+ $("lbCount").textContent=boardPlayers.length+" players • Tap a player";
+ target.innerHTML=items.length?items.map(({v,i})=>{const name=esc(v.nick||"Player"),pic=safePic(v.pic),avatar=pic?'<img src="'+pic+'" alt="">':esc(name.charAt(0).toUpperCase());
+ const points=Math.max(0,Number(v.best)||0),self=v.nick===me.nick;
+ return '<button type="button" class="lb-player '+(self?"mine":"")+'" data-player="'+i+'" aria-label="View '+name+' profile"><span class="player-left"><span class="position">'+(i+1)+'.</span><span class="mini-avatar">'+avatar+'</span><span style="min-width:0"><strong class="player-name">'+name+(self?" (you)":"")+'</strong><small class="player-sub">'+R[rank(points)][0]+' • '+(Number(v.games)||0)+' games</small></span></span><span class="player-points"><strong>'+points.toLocaleString("en-GB")+'</strong><small>BEST SCORE ↗</small></span></button>'}).join(""):'<div class="lb-empty">'+(query?"No players match your search.":"No players yet — be the first!")+'</div>';
+}
+$("lbSearch").addEventListener("input",renderBoard);
+$("lb").addEventListener("click",e=>{const b=e.target.closest("[data-player]");if(!b)return;const i=Number(b.dataset.player);if(Number.isInteger(i)&&boardPlayers[i])openPublicProfile(boardPlayers[i],i+1)});
+$("closePlayer").onclick=()=>$("playerModal").classList.remove("on");
+$("playerModal").onclick=e=>{if(e.target===$("playerModal"))$("playerModal").classList.remove("on")};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("playerModal").classList.remove("on")});
+async function board(){
+ if(!db){$("lb").textContent="Online leaderboard is unavailable. Please try again later.";return}
+ const {data,error}=await db.from("players").select("nick,best,pic,games,hits,clicks,rt_sum,updated_at").order("best",{ascending:false}).limit(100);
+ if(error){$("lb").textContent="Could not load leaderboard. Check your Supabase connection.";console.error("Leaderboard load:",error);return}
+ boardPlayers=data||[];renderBoard();
+}
+
 async function init(){
  me.nick=localNick();restoreLocalProgress();
  if(configured && window.supabase){
@@ -260,6 +365,7 @@ async function init(){
    $("lb").textContent="Leaderboard setup needed: add your Supabase URL and anon key in this file.";
  }
  login();
+ if(!me.nick)setTimeout(()=>{if(!me.nick&&!$("pm").classList.contains("on"))openPf()},700);
 }
 
 function spawn(){const d=D[$("df").value],r=d.r[0]+Math.random()*(d.r[1]-d.r[0]);g.t={life:d.life,x:r+Math.random()*(800-2*r),y:r+Math.random()*(500-2*r),r,t0:performance.now()}}
