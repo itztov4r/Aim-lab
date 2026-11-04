@@ -76,13 +76,48 @@ header{flex-wrap:wrap;gap:10px}#nv{display:flex;gap:4px}#nv button{background:no
 #mt{width:42px;height:42px;padding:0;display:grid;place-items:center;font-size:16px;color:var(--tx);letter-spacing:0}#mt:hover{transform:none;border-color:var(--ac);box-shadow:none}
 #hu{padding:5px 12px 5px 5px;gap:10px}#hu #who{color:var(--tx)}.ch{color:var(--mu);font-size:12px}
 @media(max-width:760px){.vd{display:none}.rt{margin-left:0;width:100%;justify-content:space-between}#nv{overflow-x:auto}}
-</style></head><body><div class="w" id="w" data-v="play">
+
+/* AIMLAB 2026 visual upgrade */
+body{background:radial-gradient(circle at 10% 0%,rgba(255,100,54,.16),transparent 38%),radial-gradient(circle at 95% 20%,rgba(65,110,255,.10),transparent 35%),var(--bg)}
+.w{max-width:1080px;gap:20px;padding:22px}
+#hd{backdrop-filter:blur(15px);border-radius:20px}
+.c{border-radius:20px;padding:20px;box-shadow:0 18px 65px rgba(0,0,0,.20)}
+.hud>div{border-radius:13px;padding:14px}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid #ff9769;outline-offset:3px}
+.hero{grid-column:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:155px;padding:24px 30px;border:1px solid var(--bd);border-radius:20px;background:linear-gradient(115deg,rgba(255,100,45,.12),rgba(55,65,95,.10)),var(--card)}
+.hero h2{font-size:clamp(24px,4vw,40px);line-height:1.12;letter-spacing:0;color:var(--tx);margin:10px 0;text-transform:none}
+.hero h2 strong{color:var(--ac)}.hero p{color:var(--mu);margin:0;line-height:1.6;font-size:13px}
+.hero .kicker{font-size:11px;letter-spacing:.23em;color:var(--ac);font-weight:800}
+.reticle{width:86px;height:86px;display:grid;place-items:center;flex-shrink:0;border:2px solid var(--ac);border-radius:50%;color:var(--ac);box-shadow:0 0 35px rgba(255,90,31,.24);animation:aimBreath 3s ease-in-out infinite}
+.reticle::before{content:"+";font:700 60px 'Chakra Petch',sans-serif}
+@keyframes aimBreath{50%{transform:scale(1.06);box-shadow:0 0 55px rgba(255,90,31,.45)}}
+#intro{position:fixed;inset:0;z-index:9999;background:radial-gradient(circle at center,#221b20,#080b11 65%);display:grid;place-items:center;text-align:center;color:white;transition:opacity .65s,visibility .65s}
+#intro.out{opacity:0;visibility:hidden;pointer-events:none}
+.intro-inner{width:min(90vw,470px);padding:26px}
+.intro-aim{height:94px;width:94px;border:3px solid #ff6a3c;border-radius:50%;margin:0 auto 25px;display:grid;place-items:center;box-shadow:0 0 55px rgba(255,100,50,.32);animation:introSpin 1.2s ease-out both}
+.intro-aim::after{content:"+";font:700 100px 'Chakra Petch',sans-serif;color:#ff6a3c;line-height:1}
+.intro-title{font:700 clamp(42px,9vw,67px) 'Chakra Petch',sans-serif;letter-spacing:.1em}.intro-title em{color:#ff6a3c;font-style:normal}
+.intro-sub{letter-spacing:.3em;color:#a9b0bd;font-size:11px;margin:10px 0 25px}
+.intro-bar{height:3px;width:225px;max-width:100%;background:#373944;margin:auto;overflow:hidden;border-radius:9px}.intro-bar i{display:block;background:#ff6a3c;width:100%;height:100%;transform-origin:left;animation:introLoad 1.5s ease both}
+#intro-skip{background:transparent;border:1px solid #73554b;margin-top:23px;box-shadow:none;border-radius:25px;font-size:12px;padding:9px 20px;color:white}
+@keyframes introSpin{from{transform:scale(.4) rotate(-90deg);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes introLoad{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:650px){.w{padding:12px;gap:12px}.c{padding:12px}.hero{padding:18px;min-height:145px}.reticle{width:55px;height:55px}.reticle::before{font-size:45px}.hud{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.reticle,.intro-aim,.intro-bar i{animation:none}#intro{transition:none}}
+</style></head><body><div id="intro" role="status" aria-label="Loading AIMLAB"><div class="intro-inner"><div class="intro-aim" aria-hidden="true"></div><div class="intro-title">AIM<em>LAB</em></div><div class="intro-sub">PRECISION · SPEED · RANK</div><div class="intro-bar"><i></i></div><button id="intro-skip" type="button">SKIP INTRO →</button></div></div><div class="w" id="w" data-v="play">
 <header id="hd"><div class="br"><svg width="30" height="30" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="16" cy="16" r="9"/><path d="M16 2v7M16 23v7M2 16h7M23 16h7"/></svg><h1>AIM<em>LAB</em></h1></div><i class="vd"></i><nav id="nv"><button data-v="play" class="on">Play</button><button data-v="shop">Shop</button><button data-v="lb">Leaderboard</button></nav><div class="rt"><i class="vd"></i><div id="cn">🪙 0</div><div id="hu"><div class="av" id="hav">?</div><div id="who">Guest</div><span class="ch">▾</span></div></div></header>
-<div class="c" id="gc"><div class="hud"><div>Score <b id="sc">0</b></div><div>Time <b id="tm">30</b></div><div>Acc <b id="ac">–</b></div><div>Reaction <b id="rt">–</b></div></div>
+<section class="hero" aria-label="Game introduction"><div><span class="kicker">TOV4R · AIM TRAINER</span><h2>TRAIN YOUR <strong>AIM.</strong><br>CLIMB THE RANKS.</h2><p>30-second precision challenges. Track your best score and compete on the community leaderboard.</p></div><div class="reticle" aria-hidden="true"></div></section><div class="c" id="gc"><div class="hud"><div>Score <b id="sc">0</b></div><div>Time <b id="tm">30</b></div><div>Acc <b id="ac">–</b></div><div>Reaction <b id="rt">–</b></div></div>
 <div class="cw"><canvas id="cv" width="800" height="500"></canvas><div id="ov"><div id="ovt">READY?</div><div id="ovs">Enter your name, then press Start</div></div></div>
 <p style="margin:10px 0 0"><select id="df"><option value="1">Easy ×0.8</option><option value="2" selected>Normal ×1</option><option value="3">Hard ×1.5</option></select><button id="go">Start (30s)</button> <span id="msg" class="mu"></span></p></div>
 <div id="pf" hidden></div><div class="c" id="shc"><h2>Shop &amp; Bonuses</h2><div id="sh"></div><p class="mu" style="font-size:12px;margin:8px 0 0">Earn 🪙: daily login (streak up to 7 days), rank-up, 90%+ accuracy, new best score.</p></div><div class="c" id="lbc"><div id="res"></div><h2>Leaderboard</h2><div id="lb" class="lb mu">Connect the online leaderboard to see all players.</div><p id="pap" style="margin:14px 0 0;display:none"><button id="pa">▶ Play again</button></p></div>
 </div><div id="pm"><div class="pb"><button id="px">✕</button><h2>My profile</h2><div id="pmc"></div></div></div><div id="tt"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
+
+/* Intro + on-device preservation of shop progress. Online score API stays unchanged. */
+(function(){const e=document.getElementById("intro");if(!e)return;let done=false;const close=()=>{if(done)return;done=true;e.classList.add("out");setTimeout(()=>e.remove(),700)};document.getElementById("intro-skip").onclick=close;setTimeout(close,matchMedia("(prefers-reduced-motion: reduce)").matches?150:1900)})();
+function localProgressKey(n){return "aimlab_progress_v2_"+String(n||"").toLowerCase()}
+function saveLocalProgress(){if(!me.nick)return;try{localStorage.setItem(localProgressKey(me.nick),JSON.stringify({coins:me.coins||0,owned:me.owned||[],cx:me.cx||null,tc:me.tc||null,last:me.last||null,streak:me.streak||0}))}catch(e){console.warn("Progress save failed",e)}}
+function restoreLocalProgress(){if(!me.nick)return;try{const p=JSON.parse(localStorage.getItem(localProgressKey(me.nick))||"null");if(!p)return;me.coins=Math.max(0,Number(p.coins)||0);me.owned=Array.isArray(p.owned)?p.owned.filter(i=>Number.isInteger(i)&&i>=0&&i<SH.length):[];me.cx=typeof p.cx==="string"?p.cx:undefined;me.tc=typeof p.tc==="string"?p.tc:undefined;me.last=typeof p.last==="string"?p.last:undefined;me.streak=Math.min(7,Math.max(0,Number(p.streak)||0))}catch(e){console.warn("Progress restore failed",e)}}
+
 const R=[["Iron",0],["Bronze",1000],["Silver",1800],["Gold",2500],["Platinum",3100],["Diamond",3700],["Elite",4300]];
 const RC=["#8b93a1","#cd7f32","#c0c7d1","#ffc107","#3ddbd9","#5aa9ff","#ff3d71"];const rank=b=>{let i=0;R.forEach((r,j)=>{if(b>=r[1])i=j});return i};
 const $=id=>document.getElementById(id),cv=$("cv"),x=cv.getContext("2d");
@@ -97,10 +132,10 @@ async function persistPlayer(){
   if(!db || !me.nick) return;
   const row={nick:me.nick,nick_lc:me.nick.toLowerCase(),best:me.best||0,pic:me.pic||null,games:me.games||0,hits:me.hits||0,clicks:me.clicks||0,rt_sum:me.rtSum||0,updated_at:new Date().toISOString()};
   const {error}=await db.from("players").upsert(row,{onConflict:"nick"});
-  if(error) console.error("Leaderboard save:",error);
+  if(error){console.error("Leaderboard save:",error);toast("⚠️ Online score not saved");}else saveLocalProgress();
 }
 
-function profile(){const b=me.best,i=rank(b),n=R[i+1],p=n?(b-R[i][1])/(n[1]-R[i][1])*100:100;
+function profile(){saveLocalProgress();const b=me.best,i=rank(b),n=R[i+1],p=n?(b-R[i][1])/(n[1]-R[i][1])*100:100;
 $("pf").innerHTML=`<div style="color:${RC[i]}"><div class="rk">${R[i][0]}</div><div class="bar"><i style="width:${p}%"></i></div></div><div class="mu">${n?`${n[1]-b} pts to ${n[0]} · bonus 🪙${100*(i+1)}`:"Max rank!"}</div>
 <div class="row"><span>Best score</span><b>${b}</b></div><div class="row"><span>Coins</span><b>🪙 ${me.coins||0}</b></div><div class="row"><span>Games</span><b>${me.games}</b></div>
 <div class="row"><span>Accuracy</span><b>${me.clicks?Math.round(me.hits/me.clicks*100):0}%</b></div>
@@ -132,7 +167,7 @@ async function saveName(raw){
    if(error){toast("⚠️ Database connection error");return false}
    if(existing && existing.nick!==me.nick){toast("⛔ This name is already taken, pick another one");return false}
  }
- me.nick=v;saveLocalNick(v);login();await persistPlayer();toast("✅ Name saved");return true
+ me.nick=v;saveLocalNick(v);restoreLocalProgress();profile();login();await persistPlayer();toast("✅ Name saved");return true
 }
 $("px").onclick=()=>$("pm").classList.remove("on");$("pm").onclick=e=>{if(e.target===$("pm"))$("pm").classList.remove("on")};document.addEventListener("keydown",e=>{if(e.key==="Escape")$("pm").classList.remove("on")});
 function pic(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=async()=>{const c=document.createElement("canvas");c.width=c.height=96;const m=Math.min(im.width,im.height);c.getContext("2d").drawImage(im,(im.width-m)/2,(im.height-m)/2,m,m,0,0,96,96);me.pic=c.toDataURL("image/jpeg",.8);await persistPlayer();login();if($("pm").classList.contains("on"))openPf();toast("📸 Photo updated")};im.onerror=()=>toast("Could not read this image");im.src=r.result};r.readAsDataURL(f)}
@@ -144,7 +179,7 @@ async function board(){
  $("lb").innerHTML=data.length?data.map((v,i)=>`<div style="${v.nick===me.nick?"color:var(--ac);font-weight:700":""}"><span>${i+1}. ${v.pic?`<img class="la" src="${String(v.pic).replace(/[\"'<>]/g,"")}" alt="">`:""}${esc(v.nick)}${v.nick===me.nick?" (you)":""} <span class="mu">${R[rank(v.best||0)][0]}</span></span><b>${v.best||0}</b></div>`).join(""):"No scores yet. Be the first!";
 }
 async function init(){
- me.nick=localNick();
+ me.nick=localNick();restoreLocalProgress();
  if(configured && window.supabase){
    const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
    db=client;
@@ -168,7 +203,7 @@ if(left<=0)return done();requestAnimationFrame(loop)}
 async function done(){const s=g;g=null;$("go").disabled=false;$("df").disabled=false;x.clearRect(0,0,800,500);$("ov").style.display="flex";$("ovt").textContent=s.sc+" PTS";$("ovs").textContent=`${s.hits} hits · ${s.clicks?Math.round(s.hits/s.clicks*100):0}% accuracy · ${s.hits?Math.round(s.rt/s.hits):0} ms reaction · 🪙 +${Math.floor(s.sc/50)} coins`;
 const nr=s.hits?s.rt/s.hits:0,prev=rank(me.best),ob=me.best;me.games++;me.hits+=s.hits;me.clicks+=s.clicks;me.rtSum+=s.rt;me.best=Math.max(me.best,s.sc);const pb=(s.clicks&&s.hits/s.clicks>=.9?20:0)+(ob>0&&s.sc>ob?30:0);const gc=Math.floor(s.sc/50);me.coins=(me.coins||0)+pb+gc;if(rank(me.best)>prev)[523,659,784,1047].forEach((f,i)=>setTimeout(()=>snd(f,.18,"triangle",.1),i*120));else snd(440,.25,"triangle");
 $("msg").textContent=`Final: ${s.sc} pts · ${s.hits} hits · ${Math.round(nr)} ms · 🪙 +${gc}`+(rank(me.best)>prev?` · 🎉 Rank up: ${R[rank(me.best)][0]}! Bonus +${bonus(prev)} coins`:"")+(pb?` · 🎯 +${pb} bonus (accuracy / new best)`:"");profile();
-if(db){await persistPlayer();await board()}fx();cu(s.sc);setTimeout(()=>{if(g)return;view("lb");$("pap").style.display="";$("res").innerHTML=`<div class="rs"><div class="mu">YOUR SCORE</div><div class="rk" style="color:var(--ac)">${s.sc}</div><div class="mu">${$("msg").textContent}</div></div>`},2600)}
+if(db){await persistPlayer();await board()}else saveLocalProgress();fx();cu(s.sc);setTimeout(()=>{if(g)return;view("lb");$("pap").style.display="";$("res").innerHTML=`<div class="rs"><div class="mu">YOUR SCORE</div><div class="rk" style="color:var(--ac)">${s.sc}</div><div class="mu">${$("msg").textContent}</div></div>`},2600)}
 cv.addEventListener("pointermove",e=>{const b=cv.getBoundingClientRect();mouse={x:(e.clientX-b.left)*800/b.width,y:(e.clientY-b.top)*500/b.height}});
 cv.addEventListener("pointerdown",e=>{if(!g)return;const b=cv.getBoundingClientRect(),px=(e.clientX-b.left)*800/b.width,py=(e.clientY-b.top)*500/b.height;mouse={x:px,y:py};
 g.clicks++;const t=g.t;if(t&&Math.hypot(px-t.x,py-t.y)<=t.r){const rt=performance.now()-t.t0,pts=Math.round((50+100*Math.max(0,1-rt/t.life))*g.m);g.hits++;g.rt+=rt;g.sc+=pts;snd(700+Math.min(pts,200)*2,.07,"triangle");for(let i=0;i<12;i++){const a=Math.random()*6.28,s=1+Math.random()*4;P.push({x:t.x,y:t.y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:1})}P.push({x:t.x,y:t.y-t.r,vx:0,vy:-1,l:1.4,tx:"+"+pts});spawn()}else{snd(150,.12,"sawtooth",.05);cv.classList.remove("ms");void cv.offsetWidth;cv.classList.add("ms")}
