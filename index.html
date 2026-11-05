@@ -410,6 +410,22 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
 .entry-auth input:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 .entry-auth button{flex:1;min-width:115px;font-size:12px;padding:11px 12px}
 #authLogout{border:1px solid var(--bd);border-radius:10px;background:var(--card);color:var(--tx);font:inherit;padding:9px 14px}
+
+/* Responsive refinement: preserve playable canvas and readable phone controls. */
+@media (max-width: 480px) {
+  html,body { max-width: 100%; }
+  .hero { min-width: 0; padding: 18px 16px; }
+  .hero h2 { font-size: clamp(22px,7.5vw,32px); overflow-wrap: anywhere; }
+  .entry-auth { width:100%; min-width:0; padding:12px; }
+  .entry-auth input { font-size:16px; max-width:100%; }
+  .entry-auth button { min-height:44px; min-width:0; }
+  #nv { min-width:0; }
+  #nv button { min-height:40px; }
+  canvas { max-width:100%; }
+  .rs { max-width:100%; overflow-wrap:anywhere; }
+}
+@media (min-width:481px) and (max-width:850px) { .entry-auth { min-width:0; } }
+
 </style></head><body><div id="intro" role="status" aria-label="Loading AIMLAB"><div class="intro-inner"><div class="intro-aim" aria-hidden="true"></div><div class="intro-title">AIM<em>LAB</em></div><div class="intro-sub">PRECISION · SPEED · RANK</div><div class="intro-bar"><i></i></div><button id="intro-skip" type="button">SKIP INTRO →</button></div></div><script>
 /* Remember the user's preferred eye-comfort theme before painting the page. */
 (function(){
